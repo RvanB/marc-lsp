@@ -1,0 +1,14 @@
+[project]
+name = "marc-lsp-server"
+version = "0.1.0"
+description = "LSP server for MARC MRK files with syntax highlighting and documentation lookup"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pygls",
+    "pymarc",
+    "requests",
+]
+
+[tool.uv.sources]
+pygls = { git = "http://github.com/openlawlibrary/pygls" }
