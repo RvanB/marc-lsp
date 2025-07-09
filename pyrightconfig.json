@@ -1,1 +1,0 @@
-{"venvPath":"/Users/rvanbron/test-lsp/","venv":".venv","exclude":["**/__pycache__/**/*","**/*.pyc","**/*.pyo"],"reportMissingImports":true,"reportMissingTypeStubs":true,"typeCheckingMode":"basic"}
