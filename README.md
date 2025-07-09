@@ -1,73 +1,69 @@
 # MARC LSP Server
 
-A Language Server Protocol implementation for MARC MRK (Machine-Readable Cataloging) files.
+A Language Server Protocol implementation for MARC MRK (Machine-Readable Cataloging) files with dynamic documentation lookup from the Library of Congress.
 
 ## Features
 
-- **Syntax Highlighting**: Semantic tokens for MARC tags, indicators, subfields, and content
-- **Hover Documentation**: Detailed information about MARC tags and subfields from Library of Congress documentation
-- **Auto-completion**: Smart completion for MARC tags and valid subfield codes
-- **Validation**: Real-time validation of MARC structure and field formats
-- **Error Detection**: Highlights invalid tags, subfields, and structural issues
+- **Dynamic Documentation Lookup**: Real-time fetching of MARC tag and subfield definitions from Library of Congress website
+- **Intelligent Caching**: HTML cache system with automatic cache invalidation for performance
+- **Comprehensive Hover Support**: Detailed hover information for MARC tags, subfields, indicators, and fixed field positions
+- **Fixed Field Analysis**: Character-by-character definitions for MARC fixed fields (008, etc.)
+- **MRK Format Parsing**: Robust parser for Machine-Readable format with error handling
+- **LSP Integration**: Full Language Server Protocol implementation for editor integration
 
 ## Installation
 
 1. Install dependencies:
    ```bash
-   cd /Users/rvanbron/test-lsp
    uv sync
    ```
 
-2. The LSP server is already configured in your Emacs init.el file to work with `.mrk` files.
+2. Configure your editor to use the LSP server with `.mrk` files.
 
 ## Usage
 
-1. Open any `.mrk` file in Emacs
-2. The LSP server will automatically start and provide:
-   - Syntax highlighting for MARC elements
-   - Hover documentation when you hover over tags or subfields
-   - Auto-completion when typing `=` (for tags) or `$` (for subfields)
-   - Real-time validation and error highlighting
+1. Start the LSP server:
+   ```bash
+   python marc_lsp_server.py
+   ```
+
+2. Configure your editor to connect to the LSP server for `.mrk` files
+
+3. Open any MARC record in MRK format and get:
+   - Dynamic hover documentation for tags and subfields
+   - Fixed field position analysis for 008 fields
+   - Real-time MARC format validation
 
 ## Testing
 
-Use the included `test_record.mrk` file to test all LSP features:
-
-```bash
-emacs test_record.mrk
-```
-
-## MARC Format Support
-
-The LSP server supports standard MARC bibliographic format including:
-
-- **Leader** (=LDR): Record header information
-- **Control Fields** (001-009): System control numbers and coded data
-- **Data Fields** (010-999): Bibliographic data with indicators and subfields
-
-### Common Tags Supported
-
-- **1XX**: Main entry fields (100, 110, 111)
-- **245**: Title statement
-- **250**: Edition statement  
-- **260**: Publication information
-- **300**: Physical description
-- **4XX**: Series statements
-- **5XX**: Note fields
-- **6XX**: Subject access fields
-- **7XX**: Added entry fields
-- **856**: Electronic location and access
+The project includes comprehensive test files for development:
+- `test_record.mrk`: Sample MARC record for testing
+- Various `test_*.py` files for specific functionality testing
 
 ## Architecture
 
-- `marc_lsp_server.py`: Main LSP server implementation
-- `mrk_parser.py`: MRK format parser and validator
-- `marc_tags.py`: MARC tag definitions and documentation database
+### Core Modules
+
+- **`marc_lsp_server.py`**: Main LSP server implementation with hover and completion support
+- **`marc_lookup.py`**: Dynamic documentation fetching from Library of Congress website
+- **`marc_adapter.py`**: Adapter layer between lookup system and LSP server format
+- **`marc_fixed_fields.py`**: Character-by-character definitions for MARC fixed fields
+- **`mrk_parser.py`**: MRK format parser with comprehensive error handling
+- **`marc_tags.py`**: Static MARC tag database for fallback support
+
+### Caching System
+
+- **HTML Cache**: Stores fetched documentation pages with metadata
+- **Pickle Cache**: Serialized cache for parsed MARC data
+- **Automatic Invalidation**: Cache entries expire and refresh automatically
 
 ## Development
 
-To extend the tag database or add new features:
+The system is designed for extensibility:
 
-1. Update `marc_tags.py` to add new tag definitions
-2. Modify `mrk_parser.py` for parsing improvements
-3. Enhance `marc_lsp_server.py` for new LSP capabilities
+1. **Add new fixed field definitions** in `marc_fixed_fields.py`
+2. **Enhance parsing logic** in `mrk_parser.py` 
+3. **Extend LSP capabilities** in `marc_lsp_server.py`
+4. **Improve lookup algorithms** in `marc_lookup.py`
+
+The dynamic lookup system automatically handles new MARC tags without code changes.
