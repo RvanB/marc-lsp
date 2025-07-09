@@ -8,6 +8,7 @@ dependencies = [
     "pygls",
     "pymarc",
     "requests",
+    "beautifulsoup4",
 ]
 
 [tool.uv.sources]

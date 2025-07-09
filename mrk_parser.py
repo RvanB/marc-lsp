@@ -64,7 +64,7 @@ class MrkParser:
     FIELD_TAG_PATTERN = re.compile(r'^=([A-Z0-9]{3})\s+')
     LEADER_PATTERN = re.compile(r'^=LDR\s+(.+)$')
     CONTROL_FIELD_PATTERN = re.compile(r'^=([0-9]{3})\s+(.+)$')
-    DATA_FIELD_PATTERN = re.compile(r'^=([0-9]{3})\s+([0-9\s])([0-9\s])(.*)$')
+    DATA_FIELD_PATTERN = re.compile(r'^=([0-9]{3})\s+(.)(.)(.*)$')
     SUBFIELD_PATTERN = re.compile(r'\$([a-z0-9])([^$]*)')
     
     def __init__(self):
@@ -196,11 +196,11 @@ class MrkParser:
         errors = []
         
         if field.field_type == FieldType.DATA:
-            # Validate indicators
-            if field.indicator1 and not (field.indicator1.isdigit() or field.indicator1 == ' '):
-                errors.append(f"Invalid first indicator '{field.indicator1}' for field {field.tag}")
-            if field.indicator2 and not (field.indicator2.isdigit() or field.indicator2 == ' '):
-                errors.append(f"Invalid second indicator '{field.indicator2}' for field {field.tag}")
+            # Validate indicators - allow any single character
+            if field.indicator1 and len(field.indicator1) != 1:
+                errors.append(f"First indicator must be single character for field {field.tag}")
+            if field.indicator2 and len(field.indicator2) != 1:
+                errors.append(f"Second indicator must be single character for field {field.tag}")
             
             # Validate subfields
             if field.subfields:
