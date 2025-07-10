@@ -84,23 +84,6 @@ class MarcAdapter:
             description=subfield_info.description,
             repeatable=subfield_info.repeatable
         )
-    
-    def get_all_tags(self):
-        """Get all available tags - fallback to hardcoded for completion."""
-        # For completion, we'll still use the hardcoded list as a starting point
-        # Dynamic lookup will be used for detailed information
-        from marc_tags import marc_tag_db
-        return marc_tag_db.get_all_tags()
-    
-    def get_subfields_for_tag(self, tag: str):
-        """Get subfields for a tag - try dynamic first, fallback to hardcoded."""
-        tag_info = self.lookup.get_tag_info(tag)
-        if tag_info and tag_info.subfields:
-            return list(tag_info.subfields.keys())
-        
-        # Fallback to hardcoded
-        from marc_tags import marc_tag_db
-        return marc_tag_db.get_subfields_for_tag(tag)
 
 
 # Global instance
