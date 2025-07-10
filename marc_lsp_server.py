@@ -15,7 +15,6 @@ from pygls.cli import start_server
 from pygls.lsp.server import LanguageServer
 
 from mrk_parser import MrkParser, FieldType
-from marc_tags import marc_tag_db
 from marc_adapter import marc_adapter
 from marc_fixed_fields import marc_fixed_fields
 from marc_lookup import marc_lookup
@@ -31,6 +30,7 @@ class MarcLspServer(LanguageServer):
 
 # Create server instance
 server = MarcLspServer()
+
 
 
 @server.feature(lsp.TEXT_DOCUMENT_HOVER)
@@ -85,7 +85,19 @@ def get_hover_info_with_range(line: str, field, char_idx: int, line_idx: int) ->
         if fixed_result:
             return fixed_result
     
-    # For non-fixed fields, use the original logic with default range
+    # Check if hovering over indicators to get precise range
+    if field.field_type == FieldType.DATA:
+        indicator_result = get_indicator_hover_info_with_range(line, field, char_idx, line_idx)
+        if indicator_result:
+            return indicator_result
+    
+    # Check if hovering over subfield content to get precise range
+    if field.field_type == FieldType.DATA and field.subfields:
+        subfield_result = get_subfield_hover_info_with_range(line, field, char_idx, line_idx)
+        if subfield_result:
+            return subfield_result
+    
+    # For other cases, use the original logic with default range
     hover_info = get_hover_info(line, field, char_idx)
     if hover_info:
         # Default range - highlight entire line
@@ -94,6 +106,137 @@ def get_hover_info_with_range(line: str, field, char_idx: int, line_idx: int) ->
             end=lsp.Position(line=line_idx, character=len(line))
         )
         return hover_info, default_range
+    
+    return None
+
+
+def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_idx: int) -> Optional[tuple]:
+    """Get hover information and range for indicators."""
+    
+    # Match any characters in indicator positions after =XXX and space(s)
+    # Typically format is =XXX  II where there are 2 spaces before indicators
+    ind_match = re.search(r'=(\d{3})\s+(.)(.)(?=\$)', line)
+    if ind_match:
+        ind1_pos = ind_match.start(2)  # Position of first indicator
+        ind2_pos = ind_match.start(3)  # Position of second indicator
+        
+        # Try dynamic lookup first
+        tag_def = marc_adapter.get_tag_definition(field.tag)
+        if not tag_def:
+            tag_def = marc_lookup.get_tag_info(field.tag)
+        
+        if char_idx == ind1_pos:  # First indicator
+            if tag_def and tag_def.indicators and "1" in tag_def.indicators:
+                ind_value = field.indicator1 or " "
+                ind_desc = tag_def.indicators["1"].get(ind_value, "Unknown value")
+                info = f"**Indicator 1:** `{ind_value}`\n\n{ind_desc}"
+                
+                # Add LOC URL
+                loc_url = marc_lookup._get_tag_url(field.tag)
+                if loc_url:
+                    info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
+            else:
+                info = f"**Indicator 1:** `{field.indicator1 or ' '}`"
+            
+            # Create range for just the single indicator character
+            hover_range = lsp.Range(
+                start=lsp.Position(line=line_idx, character=ind1_pos),
+                end=lsp.Position(line=line_idx, character=ind1_pos + 1)
+            )
+            
+            return info, hover_range
+                
+        elif char_idx == ind2_pos:  # Second indicator
+            if tag_def and tag_def.indicators and "2" in tag_def.indicators:
+                ind_value = field.indicator2 or " "
+                ind_desc = tag_def.indicators["2"].get(ind_value, "Unknown value")
+                info = f"**Indicator 2:** `{ind_value}`\n\n{ind_desc}"
+                
+                # Add LOC URL
+                loc_url = marc_lookup._get_tag_url(field.tag)
+                if loc_url:
+                    info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
+            else:
+                info = f"**Indicator 2:** `{field.indicator2 or ' '}`"
+            
+            # Create range for just the single indicator character
+            hover_range = lsp.Range(
+                start=lsp.Position(line=line_idx, character=ind2_pos),
+                end=lsp.Position(line=line_idx, character=ind2_pos + 1)
+            )
+            
+            return info, hover_range
+    
+    return None
+
+
+def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx: int) -> Optional[tuple]:
+    """Get hover information and range for subfields."""
+    
+    for subfield in field.subfields:
+        # Find subfield position in line  
+        subfield_pattern = f'\\${re.escape(subfield.code)}'
+        for match in re.finditer(subfield_pattern, line):
+            start_pos = match.start()
+            # Calculate the end position of the subfield content
+            content_start = match.end()
+            content_end = content_start + len(subfield.content)
+            
+            # Check if cursor is within this subfield (including the $code part)
+            if start_pos <= char_idx <= content_end:
+                # Get subfield definition - try local adapter first
+                subfield_def = marc_adapter.get_subfield_definition(field.tag, subfield.code)
+                
+                if subfield_def:
+                    info = f"**${subfield_def.code} - {subfield_def.name}**\n\n"
+                    info += f"{subfield_def.description}\n\n"
+                    if subfield_def.repeatable:
+                        info += "*Repeatable subfield*\n\n"
+                    info += f"**Content:** {subfield.content}\n\n"
+                    
+                    # Add LOC URL
+                    loc_url = marc_lookup._get_tag_url(field.tag)
+                    if loc_url:
+                        info += f"[View full documentation on Library of Congress]({loc_url})"
+                    
+                    # Create range for the entire subfield (from $code to end of content)
+                    hover_range = lsp.Range(
+                        start=lsp.Position(line=line_idx, character=start_pos),
+                        end=lsp.Position(line=line_idx, character=content_end)
+                    )
+                    
+                    return info, hover_range
+                else:
+                    # Try dynamic lookup
+                    tag_def = marc_lookup.get_tag_info(field.tag)
+                    if tag_def and tag_def.subfields.get(subfield.code):
+                        subfield_def = tag_def.subfields[subfield.code]
+                        info = f"**${subfield_def.code} - {subfield_def.name}**\n\n"
+                        info += f"{subfield_def.description}\n\n"
+                        if subfield_def.repeatable:
+                            info += "*Repeatable subfield*\n\n"
+                        info += f"**Content:** {subfield.content}\n\n"
+                        
+                        # Add LOC URL
+                        loc_url = marc_lookup._get_tag_url(field.tag)
+                        if loc_url:
+                            info += f"[View full documentation on Library of Congress]({loc_url})"
+                        
+                        # Create range for the entire subfield (from $code to end of content)
+                        hover_range = lsp.Range(
+                            start=lsp.Position(line=line_idx, character=start_pos),
+                            end=lsp.Position(line=line_idx, character=content_end)
+                        )
+                        
+                        return info, hover_range
+                    else:
+                        # Unknown subfield
+                        info = f"**${subfield.code}** - Unknown subfield for tag {field.tag}"
+                        hover_range = lsp.Range(
+                            start=lsp.Position(line=line_idx, character=start_pos),
+                            end=lsp.Position(line=line_idx, character=content_end)
+                        )
+                        return info, hover_range
     
     return None
 
@@ -109,10 +252,8 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
     
     # Check if hovering over tag
     if 0 <= char_idx <= 4:  # =XXX position
-        # Try dynamic lookup first, fallback to hardcoded
+        # Try local adapter first for immediate response
         tag_def = marc_adapter.get_tag_definition(field.tag)
-        if not tag_def:
-            tag_def = marc_tag_db.get_tag_definition(field.tag)
         if tag_def:
             info = f"**{tag_def.tag} - {tag_def.name}**\n\n"
             info += f"{tag_def.description}\n\n"
@@ -145,7 +286,41 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
             
             return info
         else:
-            return f"**{field.tag}** - Unknown MARC tag"
+            # Try dynamic lookup
+            tag_def = marc_lookup.get_tag_info(field.tag)
+            if tag_def:
+                info = f"**{tag_def.tag} - {tag_def.name}**\n\n"
+                info += f"{tag_def.description}\n\n"
+                
+                if tag_def.repeatable:
+                    info += "*Repeatable field*\n\n"
+                
+                # Add indicator information for data fields
+                if field.field_type == FieldType.DATA and tag_def.indicators:
+                    info += "**Indicators:**\n\n"
+                    for ind_num, ind_values in tag_def.indicators.items():
+                        info += f"Indicator {ind_num}:\n"
+                        for value, description in ind_values.items():
+                            info += f"- `{value}`: {description}\n"
+                        info += "\n"
+                
+                # Add subfield information
+                if tag_def.subfields:
+                    info += "**Subfields:**\n\n"
+                    for code, subfield_def in sorted(tag_def.subfields.items()):
+                        repeatable = " (R)" if subfield_def.repeatable else ""
+                        info += f"- `${code}`: {subfield_def.name}{repeatable}\n"
+                        if subfield_def.description != subfield_def.name:
+                            info += f"  {subfield_def.description}\n"
+                
+                # Add LOC URL
+                loc_url = marc_lookup._get_tag_url(field.tag)
+                if loc_url:
+                    info += f"\n[View full documentation on Library of Congress]({loc_url})"
+                
+                return info
+            else:
+                return f"**{field.tag}** - Unknown MARC tag"
     
     # Check if hovering over subfield
     if field.field_type == FieldType.DATA and field.subfields:
@@ -157,10 +332,8 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                 end_pos = match.end() + len(subfield.content)
                 
                 if start_pos <= char_idx <= end_pos:
-                    # Get subfield definition - try dynamic first
+                    # Get subfield definition - try local adapter first
                     subfield_def = marc_adapter.get_subfield_definition(field.tag, subfield.code)
-                    if not subfield_def:
-                        subfield_def = marc_tag_db.get_subfield_definition(field.tag, subfield.code)
                     if subfield_def:
                         info = f"**${subfield_def.code} - {subfield_def.name}**\n\n"
                         info += f"{subfield_def.description}\n\n"
@@ -175,7 +348,24 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                         
                         return info
                     else:
-                        return f"**${subfield.code}** - Unknown subfield for tag {field.tag}"
+                        # Try dynamic lookup
+                        tag_def = marc_lookup.get_tag_info(field.tag)
+                        if tag_def and tag_def.subfields.get(subfield.code):
+                            subfield_def = tag_def.subfields[subfield.code]
+                            info = f"**${subfield_def.code} - {subfield_def.name}**\n\n"
+                            info += f"{subfield_def.description}\n\n"
+                            if subfield_def.repeatable:
+                                info += "*Repeatable subfield*\n\n"
+                            info += f"**Content:** {subfield.content}\n\n"
+                            
+                            # Add LOC URL
+                            loc_url = marc_lookup._get_tag_url(field.tag)
+                            if loc_url:
+                                info += f"[View full documentation on Library of Congress]({loc_url})"
+                            
+                            return info
+                        else:
+                            return f"**${subfield.code}** - Unknown subfield for tag {field.tag}"
     
     # Check if hovering over indicators
     if field.field_type == FieldType.DATA:
@@ -189,7 +379,7 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
             # Try dynamic lookup first
             tag_def = marc_adapter.get_tag_definition(field.tag)
             if not tag_def:
-                tag_def = marc_tag_db.get_tag_definition(field.tag)
+                tag_def = marc_lookup.get_tag_info(field.tag)
             
             if ind1_pos <= char_idx <= ind1_pos:  # First indicator
                 if tag_def and tag_def.indicators and "1" in tag_def.indicators:
@@ -439,7 +629,7 @@ def get_tag_completions(line_prefix: str) -> List[lsp.CompletionItem]:
             # Try dynamic lookup first
             tag_def = marc_adapter.get_tag_definition(tag)
             if not tag_def:
-                tag_def = marc_tag_db.get_tag_definition(tag)
+                tag_def = marc_lookup.get_tag_info(tag)
             if tag_def:
                 completion_item = lsp.CompletionItem(
                     label=f"={tag}",
@@ -477,7 +667,8 @@ def get_subfield_completions(tag: str, line_prefix: str) -> List[lsp.CompletionI
             # Try dynamic lookup first
             subfield_def = marc_adapter.get_subfield_definition(tag, code)
             if not subfield_def:
-                subfield_def = marc_tag_db.get_subfield_definition(tag, code)
+                tag_def = marc_lookup.get_tag_info(tag)
+                subfield_def = tag_def.subfields.get(code) if tag_def else None
             if subfield_def:
                 completion_item = lsp.CompletionItem(
                     label=f"${code}",

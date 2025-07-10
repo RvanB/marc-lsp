@@ -3,9 +3,34 @@ MARC Adapter
 Adapts between dynamic lookup and existing LSP server format
 """
 
-from typing import Optional
-from marc_tags import TagDefinition, SubfieldDefinition
+from typing import Optional, Dict
 from marc_lookup import marc_lookup, TagInfo, SubfieldInfo
+from dataclasses import dataclass
+
+@dataclass
+class SubfieldDefinition:
+    """Definition of a MARC subfield."""
+    code: str
+    name: str
+    description: str
+    repeatable: bool = False
+
+
+@dataclass
+class TagDefinition:
+    """Definition of a MARC tag."""
+    tag: str
+    name: str
+    description: str
+    repeatable: bool = False
+    indicators: Dict[str, Dict[str, str]] = None  # indicator_num -> value -> description
+    subfields: Dict[str, SubfieldDefinition] = None
+    
+    def __post_init__(self):
+        if self.indicators is None:
+            self.indicators = {}
+        if self.subfields is None:
+            self.subfields = {}
 
 
 class MarcAdapter:
