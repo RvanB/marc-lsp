@@ -173,14 +173,20 @@ def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_id
 def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx: int) -> Optional[tuple]:
     """Get hover information and range for subfields."""
     
+    # Build positions by walking through subfields sequentially
+    current_pos = 0
     for subfield in field.subfields:
-        # Find subfield position in line  
+        # Find the next occurrence of this subfield code starting from current_pos
         subfield_pattern = f'\\${re.escape(subfield.code)}'
-        for match in re.finditer(subfield_pattern, line):
-            start_pos = match.start()
-            # Calculate the end position of the subfield content
-            content_start = match.end()
+        match = re.search(subfield_pattern, line[current_pos:])
+        if match:
+            # Adjust position to be relative to the full line
+            start_pos = current_pos + match.start()
+            content_start = current_pos + match.end()
             content_end = content_start + len(subfield.content)
+            
+            # Move current_pos past this subfield for next search
+            current_pos = content_end
             
             # Check if cursor is within this subfield (including the $code part)
             if start_pos <= char_idx <= content_end:
