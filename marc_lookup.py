@@ -390,26 +390,82 @@ class MarcDynamicLookup:
         
         # Look for table with class="subfields"
         subfield_table = soup.find('table', class_='subfields')
-        if not subfield_table:
-            return subfields
+        if subfield_table:
+            # Find all list items with subfield codes
+            for li in subfield_table.find_all('li'):
+                text = li.get_text().strip()
+                # Match pattern like "$a - Title (NR)" or "$k - Form (R)"
+                match = re.match(r'\$([a-z0-9])\s*-\s*([^(]+)(?:\s*\(([NR]+)\))?', text)
+                if match:
+                    code = match.group(1).lower()
+                    name = match.group(2).strip()
+                    repeatability = match.group(3) or ''
+                    repeatable = 'R' in repeatability
+                    
+                    subfields[code] = SubfieldInfo(
+                        code=code,
+                        name=name,
+                        description=name,  # Will be updated with detailed description if available
+                        repeatable=repeatable
+                    )
+        else:
+            # Alternative format: look for table cells with subfield info separated by <br>
+            subfields.update(self._extract_subfields_from_table_cells(soup))
         
-        # Find all list items with subfield codes
-        for li in subfield_table.find_all('li'):
-            text = li.get_text().strip()
-            # Match pattern like "$a - Title (NR)" or "$k - Form (R)"
-            match = re.match(r'\$([a-z0-9])\s*-\s*([^(]+)(?:\s*\(([NR]+)\))?', text)
-            if match:
-                code = match.group(1).lower()
-                name = match.group(2).strip()
-                repeatability = match.group(3) or ''
-                repeatable = 'R' in repeatability
+        return subfields
+    
+    def _extract_subfields_from_table_cells(self, soup: BeautifulSoup) -> Dict[str, SubfieldInfo]:
+        """Extract subfield information from table cells with <br> separated content."""
+        subfields = {}
+        
+        # Look through all table cells for subfield patterns
+        for td in soup.find_all('td'):
+            # Check if this cell contains subfield information
+            if '$' in td.get_text() and re.search(r'\$[a-z0-9]\s*-', td.get_text()):
+                # Split content by <br> tags
+                parts = []
+                for element in td.children:
+                    if element.name == 'br':
+                        continue
+                    elif hasattr(element, 'get_text'):
+                        parts.append(element.get_text().strip())
+                    elif isinstance(element, str):
+                        parts.append(element.strip())
                 
-                subfields[code] = SubfieldInfo(
-                    code=code,
-                    name=name,
-                    description=name,  # Will be updated with detailed description if available
-                    repeatable=repeatable
-                )
+                # Join and split by line breaks in text
+                text = ' '.join(parts)
+                lines = [line.strip() for line in text.split('\n') if line.strip()]
+                
+                # Also try splitting the HTML content directly
+                html_content = str(td)
+                if '<br' in html_content:
+                    # Split by <br> tags and clean up
+                    br_parts = re.split(r'<br\s*/?>', html_content)
+                    for part in br_parts:
+                        # Remove HTML tags and get clean text
+                        clean_part = BeautifulSoup(part, 'html.parser').get_text().strip()
+                        if clean_part and '$' in clean_part:
+                            lines.append(clean_part)
+                
+                # Parse each line for subfield information
+                for line in lines:
+                    if not line or not line.startswith('$'):
+                        continue
+                    
+                    # Match pattern like "$a - System control number (NR)"
+                    match = re.match(r'\$([a-z0-9])\s*-\s*([^(]+)(?:\s*\(([NR]+)\))?', line)
+                    if match:
+                        code = match.group(1).lower()
+                        name = match.group(2).strip()
+                        repeatability = match.group(3) or ''
+                        repeatable = 'R' in repeatability
+                        
+                        subfields[code] = SubfieldInfo(
+                            code=code,
+                            name=name,
+                            description=name,
+                            repeatable=repeatable
+                        )
         
         return subfields
     
