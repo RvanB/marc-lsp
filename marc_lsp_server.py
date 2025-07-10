@@ -11,8 +11,7 @@ import re
 from typing import List, Optional, Union
 
 from lsprotocol import types as lsp
-from pygls.cli import start_server
-from pygls.lsp.server import LanguageServer
+from pygls.server import LanguageServer
 
 from mrk_parser import MrkParser, FieldType
 from marc_adapter import marc_adapter
@@ -754,9 +753,13 @@ def validate_mrk_document(document) -> List[lsp.Diagnostic]:
     return diagnostics
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the MARC LSP server."""
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    start_server(server)
+    server.start_io()
+
+if __name__ == "__main__":
+    main()

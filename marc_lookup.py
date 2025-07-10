@@ -47,9 +47,22 @@ class TagInfo:
 class MarcHtmlCache:
     """Cache for HTML pages from Library of Congress with TTL."""
     
-    def __init__(self, cache_dir: str = "marc_html_cache", ttl_hours: int = 168):  # 1 week default
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(exist_ok=True)
+    def __init__(self, cache_dir: str = None, ttl_hours: int = 168):  # 1 week default
+        if cache_dir is None:
+            # Use platform-appropriate user cache directory
+            import os
+            if os.name == 'nt':  # Windows
+                cache_base = Path(os.environ.get('LOCALAPPDATA', Path.home() / 'AppData' / 'Local'))
+            elif os.name == 'posix':  # macOS/Linux
+                cache_base = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache'))
+            else:
+                cache_base = Path.home() / '.cache'
+            
+            self.cache_dir = cache_base / 'marc-lsp-server'
+        else:
+            self.cache_dir = Path(cache_dir)
+        
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.ttl_seconds = ttl_hours * 3600
         self.parsed_cache = {}  # In-memory cache for parsed TagInfo objects
         self.last_request_time = 0
