@@ -1,0 +1,678 @@
+{
+  "metadata": {
+    "generated": "2025-07-10T20:07:30.750109+00:00",
+    "test_run": true,
+    "generator": "test extraction script"
+  },
+  "marc_tags": {
+    "245": {
+      "tag": "245",
+      "name": "Title Statement (NR)",
+      "description": "Title Statement field consists of the title proper and may also contain the general material designation (medium), remainder of title, other title information, the remainder of the title page transcription, and statement(s) of responsibility. The title proper includes the short title and alternative title, the numerical designation of a part/section and the name of a part/section.",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {
+        "a": {
+          "code": "a",
+          "name": "Title",
+          "description": "Title proper and alternative title, excluding the designation of the number or name of a part. Subfield $a also contains the first title of separate works (by the same or different authors/composers) in a collection lacking a collective title.",
+          "repeatable": true
+        },
+        "b": {
+          "code": "b",
+          "name": "Remainder of title",
+          "description": "Data includes parallel titles, titles subsequent to the first (in items lacking a collective title), and other title information. In records formulated according to ISBD principles, subfield $b contains all the data following the first mark of ISBD punctuation and up to and including the mark of ISBD punctuation that introduces the first author statement (i.e., the first slash (/)) or precedes either the number (subfield $n) or the name (subfield $p) of a part/section of a work.",
+          "repeatable": true
+        },
+        "c": {
+          "code": "c",
+          "name": "Statement of responsibility, etc.",
+          "description": "First statement of responsibility and/or remaining data in the field that has not been subfielded by one of the other subfield codes. In records formulated according to ISBD principles, subfield $c contains all data following the first slash (/).",
+          "repeatable": true
+        },
+        "f": {
+          "code": "f",
+          "name": "Inclusive dates",
+          "description": "Time period during which the entirety of the contents of the described materials were created.",
+          "repeatable": true
+        },
+        "g": {
+          "code": "g",
+          "name": "Bulk dates",
+          "description": "Time period during which the bulk of the described materials were created.",
+          "repeatable": true
+        },
+        "h": {
+          "code": "h",
+          "name": "Medium",
+          "description": "Medium",
+          "repeatable": true
+        },
+        "k": {
+          "code": "k",
+          "name": "Form",
+          "description": "Term that is descriptive of the form of the described materials, determined by an examination of their physical character, subject of their intellectual content, or the order of information within them (e.g., daybooks, diaries, directories, journals, memoranda, etc.).",
+          "repeatable": true
+        },
+        "n": {
+          "code": "n",
+          "name": "Number of part/section of a work",
+          "description": "Number designation for a part/section of a work used in a title. Numbering is defined as an indication of sequencing in any form, e.g., Part 1, Supplement A, Book two. In music titles, the serial opus, or thematic index number are generally not contained in subfield $n.",
+          "repeatable": true
+        },
+        "p": {
+          "code": "p",
+          "name": "Name of part/section of a work",
+          "description": "Name of a part/section of a work in a title. In records formulated according to ISBD principles, subfield $p data follows a period (.) when it is preceded by subfield $a, $b or another subfield $p. Subfield $p follows a comma (,) when it follows subfield $n.",
+          "repeatable": true
+        },
+        "s": {
+          "code": "s",
+          "name": "Version",
+          "description": "Name, code, or description of a copy of the described materials that was generated at different times or for different audiences.",
+          "repeatable": true
+        },
+        "6": {
+          "code": "6",
+          "name": "Linkage",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "7": {
+          "code": "7",
+          "name": "Data provenance",
+          "description": "See description of this subfield in Appendix J: Data Provenance Subfields.",
+          "repeatable": true
+        },
+        "8": {
+          "code": "8",
+          "name": "Field link and sequence number",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        }
+      }
+    },
+    "650": {
+      "tag": "650",
+      "name": "Subject Added Entry-Topical Term (R)",
+      "description": "A title (e.g., Bible and atheism), a geographic name (e.g., Iran in the Koran), or the name of a corporate body (e.g., Catholic Church and humanism) used in a phrase subject heading are also recorded in field 650.",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {
+        "a": {
+          "code": "a",
+          "name": "Topical term or geographic name entry element",
+          "description": "Topical subject or a geographic name used as an entry element for a topical term. Parenthetical qualifying information associated with the term is not separately subfield coded.",
+          "repeatable": true
+        },
+        "b": {
+          "code": "b",
+          "name": "Topical term following geographic name entry element",
+          "description": "Topical term that is entered under a geographic name contained in subfield $a. This construction is not used in AACR2 formulated records.",
+          "repeatable": true
+        },
+        "c": {
+          "code": "c",
+          "name": "Location of event",
+          "description": "Location of event",
+          "repeatable": true
+        },
+        "d": {
+          "code": "d",
+          "name": "Active dates",
+          "description": "Time period during which an event occurred.",
+          "repeatable": true
+        },
+        "e": {
+          "code": "e",
+          "name": "Relator term",
+          "description": "Specifies the relationship between the topical heading and the described materials, e.g., depicted.",
+          "repeatable": true
+        },
+        "g": {
+          "code": "g",
+          "name": "Miscellaneous information",
+          "description": "Data element that is not more appropriately contained in another defined subfield.",
+          "repeatable": true
+        },
+        "4": {
+          "code": "4",
+          "name": "Relationship",
+          "description": "Code or URI that specifies the relationship from the entity described in the record to the entity referenced in the field. A source of relationship codes is: MARC Code List for Relators.",
+          "repeatable": true
+        },
+        "v": {
+          "code": "v",
+          "name": "Form subdivision",
+          "description": "Form subdivision that designates a specific kind or genre of material as defined by the thesaurus being used. Subfield $v is appropriate only when a form subject subdivision is added to a main term.",
+          "repeatable": true
+        },
+        "x": {
+          "code": "x",
+          "name": "General subdivision",
+          "description": "Subject subdivision that is not more appropriately contained in subfields $v (Form subdivision), $y (Chronological subdivision), or $z (Geographic subdivision). Subfield $x is appropriate only when a general topical subdivision is added to a main term.",
+          "repeatable": true
+        },
+        "y": {
+          "code": "y",
+          "name": "Chronological subdivision",
+          "description": "Subject subdivision that represents a period of time. Subfield $y is appropriate only when a chronological subject subdivision is added to a main term.",
+          "repeatable": true
+        },
+        "z": {
+          "code": "z",
+          "name": "Geographic subdivision",
+          "description": "Geographic subject subdivision. Subfield $z is appropriate in field 650 only when a geographic subject subdivision is added to a main term.",
+          "repeatable": true
+        },
+        "0": {
+          "code": "0",
+          "name": "Authority record control number or standard number",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "1": {
+          "code": "1",
+          "name": "Real World Object URI",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "2": {
+          "code": "2",
+          "name": "Source of heading or term",
+          "description": "MARC code that identifies the source list from which the subject added entry was assigned. It is used only when the second indicator position contains value 7 (Source specified in subfield $2). Code from: Subject Heading and Term Source Codes.",
+          "repeatable": true
+        },
+        "3": {
+          "code": "3",
+          "name": "Materials specified",
+          "description": "Part of the described materials to which the field applies.",
+          "repeatable": true
+        },
+        "6": {
+          "code": "6",
+          "name": "Linkage",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "7": {
+          "code": "7",
+          "name": "Data provenance",
+          "description": "See description of this subfield in Appendix J: Data Provenance Subfields.",
+          "repeatable": true
+        },
+        "8": {
+          "code": "8",
+          "name": "Field link and sequence number",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        }
+      }
+    },
+    "852": {
+      "tag": "852",
+      "name": "Location (R)",
+      "description": "Several subfields duplicate those in the 863-865 Enumeration and Chronology fields. They are used in field 852 when there is no 863-868 field in the holdings information, for example, for holdings for single-part items or for multipart and serial items reported at Holdings level 1 or 2 (Leader/17, Encoding level, code 1 or 2).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {
+        "a": {
+          "code": "a",
+          "name": "Location",
+          "description": "Institution or person holding the item or from which access is given. Contains a MARC code of the holding institution or the name of the institution or person. See MARC Code List for Organizations.",
+          "repeatable": true
+        },
+        "b": {
+          "code": "b",
+          "name": "Sublocation or collection",
+          "description": "Specific department, library, etc., within the holding organization in which the item is located or from which it is available.",
+          "repeatable": true
+        },
+        "c": {
+          "code": "c",
+          "name": "Shelving location",
+          "description": "Description of the shelving location of the item within the collection of the holding organization. It may be used to indicate the physical location within a sublocation; for example, reference alcove, oversize shelving.",
+          "repeatable": true
+        },
+        "d": {
+          "code": "d",
+          "name": "Former shelving location",
+          "description": "Call numbers/shelf numbers where a resource was previously located, in cases of a relocation or a reordering/reorganization of a collection as a whole.",
+          "repeatable": true
+        },
+        "e": {
+          "code": "e",
+          "name": "Address",
+          "description": "Street address, city, state, zip code, and country information for the current physical location of the item.",
+          "repeatable": true
+        },
+        "f": {
+          "code": "f",
+          "name": "Coded location qualifier",
+          "description": "Three-character code that identifies the specific issues of the item that are located apart from the main holdings of the same item. Subfield $f immediately follows the subfield $a, $b, or $c being qualified.",
+          "repeatable": true
+        },
+        "g": {
+          "code": "g",
+          "name": "Non-coded location qualifier",
+          "description": "Textual description that identifies the specific units of an item that are housed in a location different from that of the main holdings of the same item when the location qualifier cannot be expressed in coded form in subfield $f (Coded location qualifier).",
+          "repeatable": true
+        },
+        "u": {
+          "code": "u",
+          "name": "Uniform Resource Identifier",
+          "description": "Uniform Resource Identifier (URI), for example a URL or URN, which provides electronic access data in a standard syntax. The URI links to the repository that holds the item (regardless of whether the item is analog or digital).",
+          "repeatable": true
+        },
+        "h": {
+          "code": "h",
+          "name": "Classification part",
+          "description": "Classification portion of the call number used as the shelving scheme for an item. A Cutter, date, or term that is added to the classification to distinguish one item from any other item assigned the same classification is contained in subfield $i (Item part).",
+          "repeatable": true
+        },
+        "i": {
+          "code": "i",
+          "name": "Item part",
+          "description": "Cutter, date, or term that is added to the classification contained in subfield $h (Classification part) to distinguish one item from any other item assigned the same classification. A call number suffix is contained in subfield $m (Call number suffix).",
+          "repeatable": true
+        },
+        "j": {
+          "code": "j",
+          "name": "Shelving control number",
+          "description": "Shelving control number that is used as the shelving scheme for an item. The first indicator position contains value 4 (Shelving control number).",
+          "repeatable": true
+        },
+        "k": {
+          "code": "k",
+          "name": "Call number prefix",
+          "description": "Term that precedes a call number. Subfield $k is input before subfield $h (Classification part) or $i (Item part).",
+          "repeatable": true
+        },
+        "l": {
+          "code": "l",
+          "name": "Shelving form of title",
+          "description": "Shelving title of an unclassified item that is shelved by title. The first indicator position contains value 5 (Title).",
+          "repeatable": true
+        },
+        "m": {
+          "code": "m",
+          "name": "Call number suffix",
+          "description": "Term that follows a call number. Subfield $m is input after subfield $h (Classification part) or $i (Item part).",
+          "repeatable": true
+        },
+        "n": {
+          "code": "n",
+          "name": "Country code",
+          "description": "Two- or three-character MARC country code for the principal location identified in subfield $a (Location). Code from: MARC Code List for Countries.",
+          "repeatable": true
+        },
+        "s": {
+          "code": "s",
+          "name": "Copyright article-fee code",
+          "description": "Description of the copyright article-fee code is given in field 018 (Copyright Article-Fee Code) of the MARC 21 Format for Bibliographic Data .",
+          "repeatable": true
+        },
+        "t": {
+          "code": "t",
+          "name": "Copy number",
+          "description": "Copy number or a range of numbers for copies that have the same location and call number when the holdings information does not contain an 863-865 Enumeration and Chronology field that contains subfield $t (Copy number).",
+          "repeatable": true
+        },
+        "p": {
+          "code": "p",
+          "name": "Piece designation",
+          "description": "Identification of a single piece when the holdings information does not contain a field 863-865 (Enumeration and Chronology) or 876-878 (Item Information) that contains a subfield $p (Piece designation).",
+          "repeatable": true
+        },
+        "q": {
+          "code": "q",
+          "name": "Piece physical condition",
+          "description": "Description of any unusual characteristic of the physical condition of the piece when the information does not contain a field 863-865 (Enumeration and Chronology) or 876-878 (Item Information) that contains a subfield $q (Piece physical condition).",
+          "repeatable": true
+        },
+        "x": {
+          "code": "x",
+          "name": "Nonpublic note",
+          "description": "Note relating to the location of the item identified in the field. The note is not written in a form that is adequate for public display. A note for public display is contained in subfield $z (Public note).",
+          "repeatable": true
+        },
+        "z": {
+          "code": "z",
+          "name": "Public note",
+          "description": "Note relating to the location of the item identified in the field. The note is written in a form that is adequate for public display. A note not for public display is contained in subfield $x (Nonpublic note).",
+          "repeatable": true
+        },
+        "2": {
+          "code": "2",
+          "name": "Source of classification or shelving scheme",
+          "description": "MARC code that identifies the source from which the classification or shelving was assigned. It is used only when the first indicator position contains value 7 (Source specified in subfield $2). Code from: Classification Scheme Source Codes.",
+          "repeatable": true
+        },
+        "3": {
+          "code": "3",
+          "name": "Materials specified",
+          "description": "Part of the bibliographic item to which the field applies. Subfield $3 is the first subfield in the field.",
+          "repeatable": true
+        },
+        "6": {
+          "code": "6",
+          "name": "Linkage",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "8": {
+          "code": "8",
+          "name": "Sequence number",
+          "description": "Data that sequences related holdings records. The sequence number is a variable- length whole number which controls the display and processing sequencing of multiple related holdings records that contain identical 852 $a, $b and $t.",
+          "repeatable": true
+        }
+      }
+    }
+  },
+  "fixed_fields": {
+    "008": {
+      "date_entered": {
+        "start": 0,
+        "end": 5,
+        "name": "Date entered on file",
+        "description": "Date the record was entered into the database (YYMMDD format)",
+        "values": {}
+      },
+      "type_of_date": {
+        "start": 6,
+        "end": 6,
+        "name": "Type of date/Publication status",
+        "description": "Type of date in Date 1 and Date 2",
+        "values": {
+          "b": "No dates given; B.C. date involved",
+          "c": "Continuing resource currently published",
+          "d": "Continuing resource ceased publication",
+          "e": "Detailed date",
+          "i": "Inclusive dates of collection",
+          "k": "Range of years of bulk of collection",
+          "m": "Multiple dates",
+          "n": "Dates unknown",
+          "p": "Date of distribution/release/issue and production/recording session different",
+          "q": "Questionable date",
+          "r": "Reprint/reissue date and original date",
+          "s": "Single known/probable date",
+          "t": "Publication date and copyright date",
+          "u": "Continuing resource status unknown",
+          "|": "No attempt to code"
+        }
+      },
+      "date1": {
+        "start": 7,
+        "end": 10,
+        "name": "Date 1",
+        "description": "First date in bibliographic record",
+        "values": {}
+      },
+      "date2": {
+        "start": 11,
+        "end": 14,
+        "name": "Date 2",
+        "description": "Second date in bibliographic record",
+        "values": {}
+      },
+      "place_of_publication": {
+        "start": 15,
+        "end": 17,
+        "name": "Place of publication, production, or execution",
+        "description": "Geographic area code for place of publication",
+        "values": {}
+      },
+      "language": {
+        "start": 35,
+        "end": 37,
+        "name": "Language",
+        "description": "Language code for the language of the item",
+        "values": {}
+      },
+      "modified_record": {
+        "start": 38,
+        "end": 38,
+        "name": "Modified record",
+        "description": "Whether the record has been modified",
+        "values": {
+          " ": "Not modified",
+          "d": "Dashed-on information omitted",
+          "o": "Completely romanized/printed cards romanized",
+          "r": "Completely romanized/printed cards in script",
+          "s": "Shortened",
+          "x": "Missing characters",
+          "|": "No attempt to code"
+        }
+      },
+      "cataloging_source": {
+        "start": 39,
+        "end": 39,
+        "name": "Cataloging source",
+        "description": "Original cataloging source",
+        "values": {
+          " ": "National bibliographic agency",
+          "c": "Cooperative cataloging program",
+          "d": "Other",
+          "u": "Unknown",
+          "|": "No attempt to code"
+        }
+      },
+      "illustrations": {
+        "start": 18,
+        "end": 21,
+        "name": "Illustrations",
+        "description": "Illustration code(s)",
+        "values": {
+          " ": "No illustrations",
+          "a": "Illustrations",
+          "b": "Maps",
+          "c": "Portraits",
+          "d": "Charts",
+          "e": "Plans",
+          "f": "Plates",
+          "g": "Music",
+          "h": "Facsimiles",
+          "i": "Coats of arms",
+          "j": "Genealogical tables",
+          "k": "Forms",
+          "l": "Samples",
+          "m": "Phonodisc, phonowire, etc.",
+          "o": "Photographs",
+          "p": "Illuminations",
+          "|": "No attempt to code"
+        }
+      },
+      "target_audience": {
+        "start": 22,
+        "end": 22,
+        "name": "Target audience",
+        "description": "Intellectual level of the item",
+        "values": {
+          " ": "Unknown or not specified",
+          "a": "Preschool",
+          "b": "Primary",
+          "c": "Pre-adolescent",
+          "d": "Adolescent",
+          "e": "Adult",
+          "f": "Specialized",
+          "g": "General",
+          "j": "Juvenile",
+          "|": "No attempt to code"
+        }
+      },
+      "form_of_item": {
+        "start": 23,
+        "end": 23,
+        "name": "Form of item",
+        "description": "Form of material",
+        "values": {
+          " ": "None of the following",
+          "a": "Microfilm",
+          "b": "Microfiche",
+          "c": "Microopaque",
+          "d": "Large print",
+          "f": "Braille",
+          "o": "Online",
+          "q": "Direct electronic",
+          "r": "Regular print reproduction",
+          "s": "Electronic",
+          "|": "No attempt to code"
+        }
+      },
+      "nature_of_contents": {
+        "start": 24,
+        "end": 27,
+        "name": "Nature of contents",
+        "description": "Special characteristics",
+        "values": {
+          " ": "No specified nature of contents",
+          "a": "Abstracts/summaries",
+          "b": "Bibliographies",
+          "c": "Catalogs",
+          "d": "Dictionaries",
+          "e": "Encyclopedias",
+          "f": "Handbooks",
+          "g": "Legal articles",
+          "i": "Indexes",
+          "j": "Patent document",
+          "k": "Discographies",
+          "l": "Legislation",
+          "m": "Theses",
+          "n": "Surveys of literature",
+          "o": "Reviews",
+          "p": "Programmed texts",
+          "q": "Filmographies",
+          "r": "Directories",
+          "s": "Statistics",
+          "t": "Technical reports",
+          "u": "Standards/specifications",
+          "v": "Legal cases and case notes",
+          "w": "Law reports and digests",
+          "x": "Other reports",
+          "y": "Yearbooks",
+          "z": "Treaties",
+          "2": "Offprints",
+          "5": "Calendars",
+          "6": "Comics/graphic novels",
+          "|": "No attempt to code"
+        }
+      },
+      "government_publication": {
+        "start": 28,
+        "end": 28,
+        "name": "Government publication",
+        "description": "Government publication code",
+        "values": {
+          " ": "Not a government publication",
+          "a": "Autonomous or semi-autonomous component",
+          "c": "Multilocal",
+          "f": "Federal/national",
+          "i": "International intergovernmental",
+          "l": "Local",
+          "m": "Multistate",
+          "o": "Government publication-level undetermined",
+          "s": "State, provincial, territorial, dependent, etc.",
+          "u": "Unknown if item is government publication",
+          "z": "Other",
+          "|": "No attempt to code"
+        }
+      },
+      "conference_publication": {
+        "start": 29,
+        "end": 29,
+        "name": "Conference publication",
+        "description": "Conference publication indicator",
+        "values": {
+          "0": "Not a conference publication",
+          "1": "Conference publication",
+          "|": "No attempt to code"
+        }
+      },
+      "festschrift": {
+        "start": 30,
+        "end": 30,
+        "name": "Festschrift",
+        "description": "Festschrift indicator",
+        "values": {
+          "0": "Not a festschrift",
+          "1": "Festschrift",
+          "|": "No attempt to code"
+        }
+      },
+      "index": {
+        "start": 31,
+        "end": 31,
+        "name": "Index",
+        "description": "Index present indicator",
+        "values": {
+          "0": "No index",
+          "1": "Index present",
+          "|": "No attempt to code"
+        }
+      },
+      "literary_form": {
+        "start": 33,
+        "end": 33,
+        "name": "Literary form",
+        "description": "Literary form code",
+        "values": {
+          "0": "Not fiction (not further specified)",
+          "1": "Fiction (not further specified)",
+          "c": "Comic strips",
+          "d": "Dramas",
+          "e": "Essays",
+          "f": "Novels",
+          "h": "Humor, satires, etc.",
+          "i": "Letters",
+          "j": "Short stories",
+          "m": "Mixed forms",
+          "p": "Poetry",
+          "s": "Speeches",
+          "u": "Unknown",
+          "|": "No attempt to code"
+        }
+      },
+      "biography": {
+        "start": 34,
+        "end": 34,
+        "name": "Biography",
+        "description": "Biography code",
+        "values": {
+          " ": "No biographical material",
+          "a": "Autobiography",
+          "b": "Individual biography",
+          "c": "Collective biography",
+          "d": "Contains biographical information",
+          "|": "No attempt to code"
+        }
+      }
+    },
+    "001": {
+      "control_number": {
+        "start": 0,
+        "end": -1,
+        "name": "Control Number",
+        "description": "System-assigned unique record identifier",
+        "values": {}
+      }
+    },
+    "003": {
+      "control_number_identifier": {
+        "start": 0,
+        "end": -1,
+        "name": "Control Number Identifier",
+        "description": "MARC code for the agency assigning the control number",
+        "values": {}
+      }
+    },
+    "005": {
+      "date_time": {
+        "start": 0,
+        "end": -1,
+        "name": "Date and Time of Latest Transaction",
+        "description": "Date and time of the latest record transaction (YYYYMMDDHHMMSS.F format)",
+        "values": {}
+      }
+    }
+  }
+}

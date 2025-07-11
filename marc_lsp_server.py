@@ -14,9 +14,23 @@ from lsprotocol import types as lsp
 from pygls.server import LanguageServer
 
 from mrk_parser import MrkParser, FieldType
-from marc_adapter import marc_adapter
-from marc_fixed_fields import marc_fixed_fields
-from marc_lookup import marc_lookup
+from marc_static_data import marc_adapter, marc_fixed_fields
+# Removed dynamic imports: marc_adapter, marc_fixed_fields, marc_lookup
+
+
+def get_tag_url(tag: str) -> Optional[str]:
+    """Generate Library of Congress URL for a MARC tag (for reference only)."""
+    if not tag.isdigit() or len(tag) != 3:
+        return None
+    
+    tag_num = int(tag)
+    
+    # Holdings record tags use holdings documentation
+    if (tag_num >= 852 and tag_num <= 878) or tag_num >= 880:
+        return f"https://www.loc.gov/marc/holdings/hd{tag}.html"
+    else:
+        # Bibliographic record tags use bibliographic documentation
+        return f"https://www.loc.gov/marc/bibliographic/bd{tag}.html"
 
 
 class MarcLspServer(LanguageServer):
@@ -119,10 +133,8 @@ def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_id
         ind1_pos = ind_match.start(2)  # Position of first indicator
         ind2_pos = ind_match.start(3)  # Position of second indicator
         
-        # Try dynamic lookup first
+        # Get tag definition from static data
         tag_def = marc_adapter.get_tag_definition(field.tag)
-        if not tag_def:
-            tag_def = marc_lookup.get_tag_info(field.tag)
         
         if char_idx == ind1_pos:  # First indicator
             if tag_def and tag_def.indicators and "1" in tag_def.indicators:
@@ -131,7 +143,7 @@ def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_id
                 info = f"**Indicator 1:** `{ind_value}`\n\n{ind_desc}"
                 
                 # Add LOC URL
-                loc_url = marc_lookup._get_tag_url(field.tag)
+                loc_url = get_tag_url(field.tag)
                 if loc_url:
                     info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
             else:
@@ -152,7 +164,7 @@ def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_id
                 info = f"**Indicator 2:** `{ind_value}`\n\n{ind_desc}"
                 
                 # Add LOC URL
-                loc_url = marc_lookup._get_tag_url(field.tag)
+                loc_url = get_tag_url(field.tag)
                 if loc_url:
                     info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
             else:
@@ -200,7 +212,7 @@ def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx
                     info += f"**Content:** {subfield.content}\n\n"
                     
                     # Add LOC URL
-                    loc_url = marc_lookup._get_tag_url(field.tag)
+                    loc_url = get_tag_url(field.tag)
                     if loc_url:
                         info += f"[View full documentation on Library of Congress]({loc_url})"
                     
@@ -212,8 +224,8 @@ def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx
                     
                     return info, hover_range
                 else:
-                    # Try dynamic lookup
-                    tag_def = marc_lookup.get_tag_info(field.tag)
+                    # Get tag definition from static data
+                    tag_def = marc_adapter.get_tag_definition(field.tag)
                     if tag_def and tag_def.subfields.get(subfield.code):
                         subfield_def = tag_def.subfields[subfield.code]
                         info = f"**${subfield_def.code} - {subfield_def.name}**\n\n"
@@ -223,7 +235,7 @@ def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx
                         info += f"**Content:** {subfield.content}\n\n"
                         
                         # Add LOC URL
-                        loc_url = marc_lookup._get_tag_url(field.tag)
+                        loc_url = get_tag_url(field.tag)
                         if loc_url:
                             info += f"[View full documentation on Library of Congress]({loc_url})"
                         
@@ -285,14 +297,14 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                         info += f"  {subfield_def.description}\n"
             
             # Add LOC URL
-            loc_url = marc_lookup._get_tag_url(field.tag)
+            loc_url = get_tag_url(field.tag)
             if loc_url:
                 info += f"\n[View full documentation on Library of Congress]({loc_url})"
             
             return info
         else:
-            # Try dynamic lookup
-            tag_def = marc_lookup.get_tag_info(field.tag)
+            # Static data should have returned a result above
+            tag_def = None
             if tag_def:
                 info = f"**{tag_def.tag} - {tag_def.name}**\n\n"
                 info += f"{tag_def.description}\n\n"
@@ -319,7 +331,7 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                             info += f"  {subfield_def.description}\n"
                 
                 # Add LOC URL
-                loc_url = marc_lookup._get_tag_url(field.tag)
+                loc_url = get_tag_url(field.tag)
                 if loc_url:
                     info += f"\n[View full documentation on Library of Congress]({loc_url})"
                 
@@ -347,14 +359,14 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                         info += f"**Content:** {subfield.content}\n\n"
                         
                         # Add LOC URL
-                        loc_url = marc_lookup._get_tag_url(field.tag)
+                        loc_url = get_tag_url(field.tag)
                         if loc_url:
                             info += f"[View full documentation on Library of Congress]({loc_url})"
                         
                         return info
                     else:
-                        # Try dynamic lookup
-                        tag_def = marc_lookup.get_tag_info(field.tag)
+                        # Static data should have been checked above
+                        tag_def = None
                         if tag_def and tag_def.subfields.get(subfield.code):
                             subfield_def = tag_def.subfields[subfield.code]
                             info = f"**${subfield_def.code} - {subfield_def.name}**\n\n"
@@ -364,7 +376,7 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                             info += f"**Content:** {subfield.content}\n\n"
                             
                             # Add LOC URL
-                            loc_url = marc_lookup._get_tag_url(field.tag)
+                            loc_url = get_tag_url(field.tag)
                             if loc_url:
                                 info += f"[View full documentation on Library of Congress]({loc_url})"
                             
@@ -381,10 +393,8 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
             ind1_pos = ind_match.start(2)  # Position of first indicator
             ind2_pos = ind_match.start(3)  # Position of second indicator
             
-            # Try dynamic lookup first
+            # Get tag definition from static data
             tag_def = marc_adapter.get_tag_definition(field.tag)
-            if not tag_def:
-                tag_def = marc_lookup.get_tag_info(field.tag)
             
             if ind1_pos <= char_idx <= ind1_pos:  # First indicator
                 if tag_def and tag_def.indicators and "1" in tag_def.indicators:
@@ -393,7 +403,7 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                     info = f"**Indicator 1:** `{ind_value}`\n\n{ind_desc}"
                     
                     # Add LOC URL
-                    loc_url = marc_lookup._get_tag_url(field.tag)
+                    loc_url = get_tag_url(field.tag)
                     if loc_url:
                         info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
                     
@@ -408,7 +418,7 @@ def get_hover_info(line: str, field, char_idx: int) -> Optional[str]:
                     info = f"**Indicator 2:** `{ind_value}`\n\n{ind_desc}"
                     
                     # Add LOC URL
-                    loc_url = marc_lookup._get_tag_url(field.tag)
+                    loc_url = get_tag_url(field.tag)
                     if loc_url:
                         info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
                     
@@ -509,7 +519,7 @@ def get_fixed_field_hover_info_with_range(line: str, field, char_idx: int, line_
                 info += f"`{value}`: {desc}\n"
     
     # Add LOC URL
-    loc_url = marc_lookup._get_tag_url(field.tag)
+    loc_url = get_tag_url(field.tag)
     if loc_url:
         info += f"\n[View full documentation on Library of Congress]({loc_url})"
     
@@ -570,7 +580,7 @@ def get_fixed_field_hover_info(line: str, field, char_idx: int) -> Optional[str]
                 info += f"`{value}`: {desc}\n"
     
     # Add LOC URL
-    loc_url = marc_lookup._get_tag_url(field.tag)
+    loc_url = get_tag_url(field.tag)
     if loc_url:
         info += f"\n[View full documentation on Library of Congress]({loc_url})"
     
@@ -632,6 +642,7 @@ def validate_mrk_document(document) -> List[lsp.Diagnostic]:
             ))
     
     return diagnostics
+
 
 
 def main():

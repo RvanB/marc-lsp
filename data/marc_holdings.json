@@ -1,0 +1,404 @@
+{
+  "metadata": {
+    "generated": "2025-07-10T20:32:43.334841+00:00",
+    "source": "Library of Congress MARC documentation",
+    "version": "1.0",
+    "generator": "marc-lsp-server data extraction script"
+  },
+  "tags": {
+    "852": {
+      "tag": "852",
+      "name": "Location (R)",
+      "description": "Several subfields duplicate those in the 863-865 Enumeration and Chronology fields. They are used in field 852 when there is no 863-868 field in the holdings information, for example, for holdings for single-part items or for multipart and serial items reported at Holdings level 1 or 2 (Leader/17, Encoding level, code 1 or 2).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {
+        "a": {
+          "code": "a",
+          "name": "Location",
+          "description": "Institution or person holding the item or from which access is given. Contains a MARC code of the holding institution or the name of the institution or person. See MARC Code List for Organizations.",
+          "repeatable": true
+        },
+        "b": {
+          "code": "b",
+          "name": "Sublocation or collection",
+          "description": "Specific department, library, etc., within the holding organization in which the item is located or from which it is available.",
+          "repeatable": true
+        },
+        "c": {
+          "code": "c",
+          "name": "Shelving location",
+          "description": "Description of the shelving location of the item within the collection of the holding organization. It may be used to indicate the physical location within a sublocation; for example, reference alcove, oversize shelving.",
+          "repeatable": true
+        },
+        "d": {
+          "code": "d",
+          "name": "Former shelving location",
+          "description": "Call numbers/shelf numbers where a resource was previously located, in cases of a relocation or a reordering/reorganization of a collection as a whole.",
+          "repeatable": true
+        },
+        "e": {
+          "code": "e",
+          "name": "Address",
+          "description": "Street address, city, state, zip code, and country information for the current physical location of the item.",
+          "repeatable": true
+        },
+        "f": {
+          "code": "f",
+          "name": "Coded location qualifier",
+          "description": "Three-character code that identifies the specific issues of the item that are located apart from the main holdings of the same item. Subfield $f immediately follows the subfield $a, $b, or $c being qualified.",
+          "repeatable": true
+        },
+        "g": {
+          "code": "g",
+          "name": "Non-coded location qualifier",
+          "description": "Textual description that identifies the specific units of an item that are housed in a location different from that of the main holdings of the same item when the location qualifier cannot be expressed in coded form in subfield $f (Coded location qualifier).",
+          "repeatable": true
+        },
+        "u": {
+          "code": "u",
+          "name": "Uniform Resource Identifier",
+          "description": "Uniform Resource Identifier (URI), for example a URL or URN, which provides electronic access data in a standard syntax. The URI links to the repository that holds the item (regardless of whether the item is analog or digital).",
+          "repeatable": true
+        },
+        "h": {
+          "code": "h",
+          "name": "Classification part",
+          "description": "Classification portion of the call number used as the shelving scheme for an item. A Cutter, date, or term that is added to the classification to distinguish one item from any other item assigned the same classification is contained in subfield $i (Item part).",
+          "repeatable": true
+        },
+        "i": {
+          "code": "i",
+          "name": "Item part",
+          "description": "Cutter, date, or term that is added to the classification contained in subfield $h (Classification part) to distinguish one item from any other item assigned the same classification. A call number suffix is contained in subfield $m (Call number suffix).",
+          "repeatable": true
+        },
+        "j": {
+          "code": "j",
+          "name": "Shelving control number",
+          "description": "Shelving control number that is used as the shelving scheme for an item. The first indicator position contains value 4 (Shelving control number).",
+          "repeatable": true
+        },
+        "k": {
+          "code": "k",
+          "name": "Call number prefix",
+          "description": "Term that precedes a call number. Subfield $k is input before subfield $h (Classification part) or $i (Item part).",
+          "repeatable": true
+        },
+        "l": {
+          "code": "l",
+          "name": "Shelving form of title",
+          "description": "Shelving title of an unclassified item that is shelved by title. The first indicator position contains value 5 (Title).",
+          "repeatable": true
+        },
+        "m": {
+          "code": "m",
+          "name": "Call number suffix",
+          "description": "Term that follows a call number. Subfield $m is input after subfield $h (Classification part) or $i (Item part).",
+          "repeatable": true
+        },
+        "n": {
+          "code": "n",
+          "name": "Country code",
+          "description": "Two- or three-character MARC country code for the principal location identified in subfield $a (Location). Code from: MARC Code List for Countries.",
+          "repeatable": true
+        },
+        "s": {
+          "code": "s",
+          "name": "Copyright article-fee code",
+          "description": "Description of the copyright article-fee code is given in field 018 (Copyright Article-Fee Code) of the MARC 21 Format for Bibliographic Data .",
+          "repeatable": true
+        },
+        "t": {
+          "code": "t",
+          "name": "Copy number",
+          "description": "Copy number or a range of numbers for copies that have the same location and call number when the holdings information does not contain an 863-865 Enumeration and Chronology field that contains subfield $t (Copy number).",
+          "repeatable": true
+        },
+        "p": {
+          "code": "p",
+          "name": "Piece designation",
+          "description": "Identification of a single piece when the holdings information does not contain a field 863-865 (Enumeration and Chronology) or 876-878 (Item Information) that contains a subfield $p (Piece designation).",
+          "repeatable": true
+        },
+        "q": {
+          "code": "q",
+          "name": "Piece physical condition",
+          "description": "Description of any unusual characteristic of the physical condition of the piece when the information does not contain a field 863-865 (Enumeration and Chronology) or 876-878 (Item Information) that contains a subfield $q (Piece physical condition).",
+          "repeatable": true
+        },
+        "x": {
+          "code": "x",
+          "name": "Nonpublic note",
+          "description": "Note relating to the location of the item identified in the field. The note is not written in a form that is adequate for public display. A note for public display is contained in subfield $z (Public note).",
+          "repeatable": true
+        },
+        "z": {
+          "code": "z",
+          "name": "Public note",
+          "description": "Note relating to the location of the item identified in the field. The note is written in a form that is adequate for public display. A note not for public display is contained in subfield $x (Nonpublic note).",
+          "repeatable": true
+        },
+        "2": {
+          "code": "2",
+          "name": "Source of classification or shelving scheme",
+          "description": "MARC code that identifies the source from which the classification or shelving was assigned. It is used only when the first indicator position contains value 7 (Source specified in subfield $2). Code from: Classification Scheme Source Codes.",
+          "repeatable": true
+        },
+        "3": {
+          "code": "3",
+          "name": "Materials specified",
+          "description": "Part of the bibliographic item to which the field applies. Subfield $3 is the first subfield in the field.",
+          "repeatable": true
+        },
+        "6": {
+          "code": "6",
+          "name": "Linkage",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "8": {
+          "code": "8",
+          "name": "Sequence number",
+          "description": "Data that sequences related holdings records. The sequence number is a variable- length whole number which controls the display and processing sequencing of multiple related holdings records that contain identical 852 $a, $b and $t.",
+          "repeatable": true
+        }
+      }
+    },
+    "853": {
+      "tag": "853",
+      "name": "Captions and Pattern-Basic Bibliographic Unit (R)",
+      "description": "Caption that is appropriate for each level of enumeration and chronology that is present in a related 863 Enumeration and Chronology Basic Bibliographic Unit field and codes that define the publication pattern of the item. A display may be generated from the contents of field 853 and the related 863 field(s) to which it is linked by subfield $8 (Field link and sequence number).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "855": {
+      "tag": "855",
+      "name": "Captions and Pattern-Indexes (R)",
+      "description": "Caption that is appropriate for each level of enumeration and chronology that is present in a related 865 Enumeration and Chronology Indexes field and codes that define the publication pattern for the item. A display may be generated from the contents of field 855 and the related 865 field(s) to which it is linked by subfield $8 (Field link and sequence number).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "857": {
+      "tag": "857",
+      "name": "Electronic Archive Location and Access (R)",
+      "description": "Field 857 is repeated when an electronic resource has been stored in more than one Web archive or digital archive repository.",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {
+        "b": {
+          "code": "b",
+          "name": "Name of archiving agency",
+          "description": "Agency responsible for the Web archive or digital archive repository.",
+          "repeatable": true
+        },
+        "c": {
+          "code": "c",
+          "name": "Name of Web archive or digital archive repository",
+          "description": "The name by which the Web archive or digital archive repository is known.",
+          "repeatable": true
+        },
+        "d": {
+          "code": "d",
+          "name": "Date range of archived material",
+          "description": "The subfield is intended primarily for archived electronic continuing resources and other dynamic resources to provide information about the range of dates during which the archived material was issued.",
+          "repeatable": true
+        },
+        "f": {
+          "code": "f",
+          "name": "Archive completeness",
+          "description": "The subfield is intended primarily for archived electronic continuing resources or other archived dynamic resources. It contains information about how often or how many times an electronic continuing resource has been harvested.",
+          "repeatable": true
+        },
+        "g": {
+          "code": "g",
+          "name": "Persistent identifier",
+          "description": "Persistent identifier (PID) which enables search and retrieval of a resource from a Web archive or digital archive repository using existing Internet protocols. It is assigned to the resource for automated access and other resolution services by a PID resolver.",
+          "repeatable": true
+        },
+        "h": {
+          "code": "h",
+          "name": "Non-functioning Uniform Resource Identifier",
+          "description": "Uniform Resource Identifier (URI), for any archive or repository that has ceased to exist. Subfield $h may be repeated if there is more than one non-functioning URI. A note on the status change (including the date) may be added in either subfield $x or subfield $z, depending on the local policy.",
+          "repeatable": true
+        },
+        "l": {
+          "code": "l",
+          "name": "Standardized information governing access",
+          "description": "The subfield contains standardized information about the access status of a resource. The information may be in the form of a value from a controlled vocabulary, or a Uniform Resource Identifier (URI).",
+          "repeatable": true
+        },
+        "m": {
+          "code": "m",
+          "name": "Contact for access assistance",
+          "description": "Name of a contact for assistance in accessing a resource at the host specified in subfield $b. For addresses relating to the content of the resource itself (i.e. the item represented by the title recorded in field 245) rather than access assistance, field 270 is used.",
+          "repeatable": true
+        },
+        "n": {
+          "code": "n",
+          "name": "Terms governing access",
+          "description": "The subfield contains textual information about the access status of a resource.",
+          "repeatable": true
+        },
+        "q": {
+          "code": "q",
+          "name": "Electronic format type",
+          "description": "Identification of the electronic format type and version. Electronic format type should be specified with a code from the list of registered Internet Media Types (MIME types), taken from: IANA Media Types.",
+          "repeatable": true
+        },
+        "r": {
+          "code": "r",
+          "name": "Standardized information governing use and reproduction",
+          "description": "The subfield contains standardized information about the use and reproduction rights of a resource. The information may be in the form of a value from a controlled vocabulary, or a Uniform Resource Identifier (URI).",
+          "repeatable": true
+        },
+        "s": {
+          "code": "s",
+          "name": "File size",
+          "description": "Size of the file(s) as stored in the archive indicated in subfield $c. It is generally expressed in terms of 8-bit bytes (megabytes, gigabytes).",
+          "repeatable": true
+        },
+        "t": {
+          "code": "t",
+          "name": "Terms governing use and reproduction",
+          "description": "The subfield contains textual information about the use and reproduction rights of a resource.",
+          "repeatable": true
+        },
+        "u": {
+          "code": "u",
+          "name": "Uniform Resource Identifier",
+          "description": "Uniform Resource Identifier (URI), which provides standard syntax for locating an object using existing Internet protocols or by resolution of a persistent identifier (PID). Subfield $u may be repeated if more than one URI is recorded.",
+          "repeatable": true
+        },
+        "x": {
+          "code": "x",
+          "name": "Nonpublic note",
+          "description": "Note relating to the electronic location of the source identified in the field. The note is written in a form that is not adequate or intended for public display. It may also contain processing information about the file at the location specified.",
+          "repeatable": true
+        },
+        "y": {
+          "code": "y",
+          "name": "Link text",
+          "description": "Used for display in place of the URL in subfield $u. When subfield $y is present, applications should use the contents of subfield $y as the link instead of the content of subfield $u when linking to the destination in subfield $u.",
+          "repeatable": true
+        },
+        "z": {
+          "code": "z",
+          "name": "Public note",
+          "description": "Note relating to the electronic location of the source identified in the field. The note is written in a form that is adequate or intended for public display.",
+          "repeatable": true
+        },
+        "2": {
+          "code": "2",
+          "name": "Access method",
+          "description": "Access method when the first indicator position contains value 7. Code from: Electronic Access Methods Code List.",
+          "repeatable": true
+        },
+        "3": {
+          "code": "3",
+          "name": "Materials specified",
+          "description": "Part of the described material to which the field applies",
+          "repeatable": true
+        },
+        "5": {
+          "code": "5",
+          "name": "Institution to which field applies",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "6": {
+          "code": "6",
+          "name": "Linkage",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        },
+        "7": {
+          "code": "7",
+          "name": "Access status",
+          "description": "Code indicating the availability of access to the networked electronic resource the address of which appears in subfield $g and/or subfield $u. Subfield $7 applies to all subfields $g and $u present in the field.",
+          "repeatable": true
+        },
+        "8": {
+          "code": "8",
+          "name": "Field link and sequence number",
+          "description": "See description of this subfield in Appendix A: Control Subfields.",
+          "repeatable": true
+        }
+      }
+    },
+    "863": {
+      "tag": "863",
+      "name": "Enumeration and Chronology-Basic Bibliographic Unit (R)",
+      "description": "Enumeration and chronology of a basic bibliographic unit in the holdings of the reporting organization. A display may be generated from the contents of field 863 and the related field 853 (Captions and Pattern--Basic Bibliographic Unit) to which it is linked by subfield $8 (Field link and sequence number).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "864": {
+      "tag": "864",
+      "name": "Enumeration and Chronology-Supplementary Material (R)",
+      "description": "Enumeration and chronology of supplementary material that are not separately cataloged in the holdings of the reporting organization. A display may be generated from the contents of field 864 and the related field 854 (Captions and Pattern--Supplementary Material) to which it is linked by subfield $8 (Field link and sequence number).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "865": {
+      "tag": "865",
+      "name": "Enumeration and Chronology-Indexes (R)",
+      "description": "Enumeration and chronology of indexes that are not separately cataloged in the holdings of the reporting organization. A display may be generated from the contents of field 865 and the related field 855 (Captions and Pattern--Indexes) to which it is linked by subfield $8 (Field link and sequence number).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "866": {
+      "tag": "866",
+      "name": "Textual Holdings-Basic Bibliographic Unit (R)",
+      "description": "Textual description of the holdings of a basic bibliographic unit in the collections of the reporting organization. It may be used instead of or in addition to field 863 (Enumeration and Chronology Basic Bibliographic Unit) and any related field 853 (Captions and Pattern--Basic Bibliographic Unit) to record and/or display all or part of the holdings.",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "867": {
+      "tag": "867",
+      "name": "Textual Holdings-Supplementary Material (R)",
+      "description": "Textual description of the holdings of supplementary material in the collections of the reporting organization. It may be used instead of or in addition to field 864 (Enumeration and Chronology--Supplementary Material) and any related field 854 (Captions and Pattern--Supplementary Material) to record and/or display all or part of the holdings.",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "868": {
+      "tag": "868",
+      "name": "Textual Holdings-Indexes (R)",
+      "description": "Textual description of the holdings of indexes in the collections of the reporting organization. It may be used instead of or in addition to field 865 (Enumeration and Chronology--Indexes) and any related 855 (Captions and Pattern--Indexes) to record and/or display all or part of the holdings.",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "876": {
+      "tag": "876",
+      "name": "Item Information-Basic Bibliographic Unit (R)",
+      "description": "Item information about a basic bibliographic unit in the holdings of the reporting organization. A display may be generated from the contents of field 876 and its related 852 (Location), 853/863 (Captions and Pattern/Enumeration and Chronology), or 866 (Textual Holdings) field to which it is linked by subfield $8 (Field link and sequence number) or related by subfield $3 (Materials specified).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "877": {
+      "tag": "877",
+      "name": "Item Information-Supplementary Material (R)",
+      "description": "Item information about supplementary material that is not separately cataloged in the holdings of the reporting organization. A display may be generated from the contents of field 877 and its related 852 (Location), 854/864 (Captions and Pattern/Enumeration and Chronology), or 867 (Textual Holdings) field to which it is linked by subfield $8 (Field link and sequence number) or related by subfield $3 (Materials specified).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    },
+    "878": {
+      "tag": "878",
+      "name": "Item Information-Indexes (R)",
+      "description": "Item information about indexes that are not separately cataloged in the holdings of the reporting organization. A display may be generated from the contents of field 878 and its related 852 (Location), 855/865 (Captions and Pattern/Enumeration and Chronology), or 868 (Textual Holdings) field to which it is linked by subfield $8 (Field link and sequence number) or related by subfield $3 (Materials specified).",
+      "repeatable": false,
+      "indicators": {},
+      "subfields": {}
+    }
+  }
+}

@@ -29,11 +29,13 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=[
-        "requests>=2.25.0",
-        "beautifulsoup4>=4.9.0", 
         "lsprotocol>=2023.0.0",
         "pygls>=1.0.0",
     ],
+    package_data={
+        "": ["data/*.json"],
+    },
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "marc-lsp-server=marc_lsp_server:main",
@@ -41,9 +43,7 @@ setup(
     },
     py_modules=[
         "marc_lsp_server",
-        "marc_lookup", 
-        "marc_adapter",
-        "marc_fixed_fields",
+        "marc_static_data",
         "mrk_parser",
     ],
 )
