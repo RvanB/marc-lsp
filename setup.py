@@ -45,5 +45,6 @@ setup(
         "marc_lsp_server",
         "marc_static_data",
         "mrk_parser",
+        "line_parser",
     ],
 )

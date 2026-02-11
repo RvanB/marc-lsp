@@ -37,7 +37,6 @@ class TagDefinition:
         if self.subfields is None:
             self.subfields = {}
 
-
 @dataclass
 class FixedFieldPosition:
     """Definition of a character position in a fixed field."""
@@ -51,9 +50,9 @@ class FixedFieldPosition:
 class MarcStaticData:
     """Static MARC data loader for fast field lookups."""
     
-    def __init__(self, data_dir: str = None):
+    def __init__(self, data_dir: str = ""):
         """Initialize static data loader."""
-        if data_dir is None:
+        if not data_dir:
             # Default to data directory relative to this file
             self.data_dir = Path(__file__).parent / "data"
         else:
@@ -214,7 +213,7 @@ class MarcStaticData:
         
         return None
     
-    def get_data_info(self) -> Dict:
+    def get_data_info(self):
         """Get information about loaded data."""
         return {
             "bibliographic_tags": len(self._bibliographic_tags),
@@ -225,53 +224,3 @@ class MarcStaticData:
         }
 
 
-# Global instance for backward compatibility with existing code
-marc_static_data = MarcStaticData()
-
-
-# Adapter class that maintains the same interface as marc_adapter
-class MarcAdapter:
-    """Adapter to maintain compatibility with existing LSP server code."""
-    
-    def __init__(self):
-        self.static_data = marc_static_data
-    
-    def get_tag_definition(self, tag: str) -> Optional[TagDefinition]:
-        """Get tag definition - same interface as dynamic version."""
-        return self.static_data.get_tag_definition(tag)
-    
-    def get_subfield_definition(self, tag: str, subfield_code: str) -> Optional[SubfieldDefinition]:
-        """Get subfield definition - same interface as dynamic version."""
-        return self.static_data.get_subfield_definition(tag, subfield_code)
-    
-    def get_all_tags(self) -> list[str]:
-        """Get all available tags."""
-        return self.static_data.get_all_tags()
-    
-    def get_subfields_for_tag(self, tag: str) -> list[str]:
-        """Get subfields for a tag."""
-        return self.static_data.get_subfields_for_tag(tag)
-
-
-# Global instance
-marc_adapter = MarcAdapter()
-
-
-# Fixed fields interface for backward compatibility
-class MarcFixedFields:
-    """Fixed fields interface that uses static data."""
-    
-    def __init__(self):
-        self.static_data = marc_static_data
-    
-    def is_fixed_field(self, field_tag: str) -> bool:
-        """Check if a field tag is a fixed field."""
-        return self.static_data.is_fixed_field(field_tag)
-    
-    def get_position_info(self, field_tag: str, char_position: int) -> Optional[FixedFieldPosition]:
-        """Get information for a specific character position in a fixed field."""
-        return self.static_data.get_position_info(field_tag, char_position)
-
-
-# Global instance
-marc_fixed_fields = MarcFixedFields()
