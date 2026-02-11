@@ -7,6 +7,7 @@ Uses pre-generated JSON files for instant access to MARC field definitions.
 
 import json
 import logging
+import sys
 from pathlib import Path
 from typing import Dict, Optional
 from dataclasses import dataclass
@@ -53,8 +54,14 @@ class MarcStaticData:
     def __init__(self, data_dir: str = ""):
         """Initialize static data loader."""
         if not data_dir:
-            # Default to data directory relative to this file
-            self.data_dir = Path(__file__).parent / "data"
+            # Try data directory relative to this file first (development),
+            # then fall back to sys.prefix/data (installed via pip/pipx)
+            local_data = Path(__file__).parent / "data"
+            prefix_data = Path(sys.prefix) / "data"
+            if local_data.exists():
+                self.data_dir = local_data
+            else:
+                self.data_dir = prefix_data
         else:
             self.data_dir = Path(data_dir)
         
