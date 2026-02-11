@@ -104,7 +104,11 @@ def convert_tag_info_to_dict(tag_info: TagInfo) -> Dict:
 
 
 def extract_fixed_field_data() -> Dict:
-    """Extract fixed field definitions to dictionary format."""
+    """Extract fixed field definitions to dictionary format.
+    
+    The 008 field has different position meanings for different record types,
+    so this is organized by record type when output.
+    """
     fixed_fields = {}
     
     for field_tag, positions in marc_fixed_fields.field_definitions.items():
@@ -241,10 +245,56 @@ def generate_marc_data_files():
     
     fixed_field_data = extract_fixed_field_data()
     
-    fixed_output = {
-        "metadata": metadata,
-        "fields": fixed_field_data
-    }
+    # Organize fixed fields by record type
+    # Check if source has record-type-specific 008 definitions
+    record_type_008 = None
+    if hasattr(marc_fixed_fields, 'field_definitions_by_type') and "008" in marc_fixed_fields.field_definitions_by_type:
+        record_type_008 = marc_fixed_fields.field_definitions_by_type["008"]
+    
+    if record_type_008:
+        # Build record-type-specific structure with 008 variations
+        fixed_output = {
+            "metadata": metadata,
+            "fields": {}
+        }
+        
+        # Get all record types from the 008 data
+        for record_type in record_type_008.keys():
+            fixed_output["fields"][record_type.upper()] = {}
+        
+        # Add 008 definitions for each record type
+        for record_type, positions in record_type_008.items():
+            field_data = {}
+            for pos_name, pos_def in positions.items():
+                field_data[pos_name] = {
+                    "start": pos_def.start,
+                    "end": pos_def.end,
+                    "name": pos_def.name,
+                    "description": pos_def.description,
+                    "values": pos_def.values or {}
+                }
+            fixed_output["fields"][record_type.upper()]["008"] = field_data
+        
+        # Add other fixed fields to all record types
+        for field_tag, field_def in fixed_field_data.items():
+            if field_tag != "008":
+                for record_type in fixed_output["fields"].keys():
+                    fixed_output["fields"][record_type][field_tag] = field_def
+        
+        logging.info("Fixed fields organized by record type with record-type-specific 008 definitions")
+    else:
+        # Standard organization by record type (all fields same across types)
+        fixed_output = {
+            "metadata": metadata,
+            "fields": {
+                "BIB": fixed_field_data,
+                "HOLD": fixed_field_data,
+                "AUTH": fixed_field_data,
+                "CLASS": fixed_field_data,
+                "COMM": fixed_field_data,
+            }
+        }
+        logging.info("Fixed fields organized by record type (generic definitions)")
     
     fixed_file = data_dir / "marc_fixed_fields.json"
     with open(fixed_file, 'w', encoding='utf-8') as f:

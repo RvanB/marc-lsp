@@ -15,7 +15,7 @@ from lsprotocol import types as lsp
 from pygls.server import LanguageServer
 
 from parsers import MrkParser, LineParser, FieldType
-from marc_definitions import MarcStaticData
+from marc_definitions import MarcStaticData, RecordType
 
 
 def get_tag_url(tag: str) -> Optional[str]:
@@ -47,6 +47,30 @@ def detect_format(content: str) -> str:
         # Non-empty, non-= line found; assume line mode
         return 'line'
     return 'mrk'  # default
+
+
+def _detect_record_type_from_content(content: str, fmt: str) -> Optional[RecordType]:
+    """Detect MARC record type from the leader in the content."""
+    lines = content.split('\n')
+    
+    for line in lines:
+        if not line.strip():
+            continue
+        
+        # Find the leader line
+        if fmt == 'mrk':
+            if line.startswith('=LDR'):
+                # Extract leader content (skip "=LDR  " prefix)
+                leader = line[6:].strip()
+                if leader:
+                    return static_data.detect_record_type(leader)
+        else:  # line mode
+            # Leader is the first non-empty line, no tag prefix
+            # It's 24 characters starting with 5 digits
+            if line and line[0].isdigit() and len(line) >= 7:
+                return static_data.detect_record_type(line)
+    
+    return None
 
 
 class MarcLspServer(LanguageServer):
@@ -105,6 +129,10 @@ def _indicator_pattern(fmt: str) -> re.Pattern:
 
 def _find_content_start(line: str, field, fmt: str) -> int:
     """Find the character position where field content starts (after tag and spaces)."""
+    # Leader in line format has no tag prefix - content starts at position 0
+    if field.tag == "LDR" and fmt == 'line':
+        return 0
+    
     if fmt == 'mrk':
         tag_pattern = f'={field.tag}'
     else:
@@ -148,7 +176,10 @@ def hover(params: lsp.HoverParams) -> Optional[lsp.Hover]:
     if not field:
         return None
 
-    hover_result = get_hover_info_with_range(line, field, char_idx, line_idx, fmt)
+    # Detect record type from leader
+    record_type = _detect_record_type_from_content(content, fmt)
+
+    hover_result = get_hover_info_with_range(line, field, char_idx, line_idx, fmt, record_type)
     if not hover_result:
         return None
 
@@ -168,12 +199,17 @@ def hover(params: lsp.HoverParams) -> Optional[lsp.Hover]:
     return hover_response
 
 
-def get_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fmt: str = 'mrk') -> Optional[tuple]:
+def get_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fmt: str = 'mrk', record_type: Optional[RecordType] = None) -> Optional[tuple]:
     """Generate hover information and range for a specific position in a MARC line."""
 
+    # Check if hovering over the tag itself
+    tag_result = get_tag_hover_info_with_range(line, field, char_idx, line_idx, fmt)
+    if tag_result:
+        return tag_result
+
     # Check if this is a fixed field and hovering over content
-    if static_data.is_fixed_field(field.tag):
-        fixed_result = get_fixed_field_hover_info_with_range(line, field, char_idx, line_idx, fmt)
+    if static_data.is_fixed_field(field.tag, record_type):
+        fixed_result = get_fixed_field_hover_info_with_range(line, field, char_idx, line_idx, fmt, record_type)
         if fixed_result:
             return fixed_result
 
@@ -202,6 +238,49 @@ def get_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fm
     return None
 
 
+def get_tag_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fmt: str = 'mrk') -> Optional[tuple]:
+    """Get hover information and range for the tag itself."""
+    
+    if fmt == 'mrk':
+        # MRK format: =XXX
+        tag_pattern = f'={field.tag}'
+        tag_start = line.find(tag_pattern)
+        if tag_start == -1:
+            return None
+        tag_end = tag_start + len(tag_pattern)
+    else:
+        # Line format: XXX at start of line, or no prefix for LDR
+        if field.tag == "LDR":
+            # Leader in line format has no tag prefix
+            return None
+        
+        tag_start = line.find(field.tag)
+        if tag_start == -1 or tag_start > 3:  # Tag should be at beginning
+            return None
+        tag_end = tag_start + len(field.tag)
+    
+    # Check if hovering over the tag
+    if char_idx < tag_start or char_idx >= tag_end:
+        return None
+    
+    # Get tag definition
+    tag_def = static_data.get_tag_definition(field.tag)
+    if not tag_def:
+        return None
+    
+    # Build hover info for tag
+    info = f"**{field.tag} - {tag_def.name}**\n\n"
+    info += tag_def.description
+    
+    # Build range to highlight
+    hover_range = lsp.Range(
+        start=lsp.Position(line=line_idx, character=tag_start),
+        end=lsp.Position(line=line_idx, character=tag_end)
+    )
+    
+    return info, hover_range
+
+
 def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fmt: str = 'mrk') -> Optional[tuple]:
     """Get hover information and range for indicators."""
 
@@ -219,10 +298,6 @@ def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_id
                 ind_value = field.indicator1 or " "
                 ind_desc = tag_def.indicators["1"].get(ind_value, "Unknown value")
                 info = f"**Indicator 1:** `{ind_value}`\n\n{ind_desc}"
-
-                loc_url = get_tag_url(field.tag)
-                if loc_url:
-                    info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
             else:
                 info = f"**Indicator 1:** `{field.indicator1 or ' '}`"
 
@@ -238,10 +313,6 @@ def get_indicator_hover_info_with_range(line: str, field, char_idx: int, line_id
                 ind_value = field.indicator2 or " "
                 ind_desc = tag_def.indicators["2"].get(ind_value, "Unknown value")
                 info = f"**Indicator 2:** `{ind_value}`\n\n{ind_desc}"
-
-                loc_url = get_tag_url(field.tag)
-                if loc_url:
-                    info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
             else:
                 info = f"**Indicator 2:** `{field.indicator2 or ' '}`"
 
@@ -285,10 +356,6 @@ def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx
                         info += "*Repeatable subfield*\n\n"
                     info += f"**Content:** {subfield.content}\n\n"
 
-                    loc_url = get_tag_url(field.tag)
-                    if loc_url:
-                        info += f"[View full documentation on Library of Congress]({loc_url})"
-
                     hover_range = lsp.Range(
                         start=lsp.Position(line=line_idx, character=start_pos),
                         end=lsp.Position(line=line_idx, character=content_end)
@@ -307,9 +374,6 @@ def get_subfield_hover_info_with_range(line: str, field, char_idx: int, line_idx
                         info += f"**Content:** {subfield.content}\n\n"
 
                         loc_url = get_tag_url(field.tag)
-                        if loc_url:
-                            info += f"[View full documentation on Library of Congress]({loc_url})"
-
                         hover_range = lsp.Range(
                             start=lsp.Position(line=line_idx, character=start_pos),
                             end=lsp.Position(line=line_idx, character=content_end)
@@ -345,9 +409,6 @@ def get_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk') -> Optiona
             info = f"**{tag_def.tag} - {tag_def.name}**\n\n"
             info += f"{tag_def.description}\n\n"
 
-            if tag_def.repeatable:
-                info += "*Repeatable field*\n\n"
-
             # Add indicator information for data fields
             if field.field_type == FieldType.DATA and tag_def.indicators:
                 info += "**Indicators:**\n\n"
@@ -367,9 +428,6 @@ def get_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk') -> Optiona
                         info += f"  {subfield_def.description}\n"
 
             loc_url = get_tag_url(field.tag)
-            if loc_url:
-                info += f"\n[View full documentation on Library of Congress]({loc_url})"
-
             return info
 
     # Check if hovering over subfield
@@ -388,10 +446,6 @@ def get_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk') -> Optiona
                         if subfield_def.repeatable:
                             info += "*Repeatable subfield*\n\n"
                         info += f"**Content:** {subfield.content}\n\n"
-
-                        loc_url = get_tag_url(field.tag)
-                        if loc_url:
-                            info += f"[View full documentation on Library of Congress]({loc_url})"
 
                         return info
                     else:
@@ -413,10 +467,6 @@ def get_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk') -> Optiona
                     ind_desc = tag_def.indicators["1"].get(ind_value, "Unknown value")
                     info = f"**Indicator 1:** `{ind_value}`\n\n{ind_desc}"
 
-                    loc_url = get_tag_url(field.tag)
-                    if loc_url:
-                        info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
-
                     return info
                 else:
                     return f"**Indicator 1:** `{field.indicator1 or ' '}`"
@@ -427,10 +477,6 @@ def get_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk') -> Optiona
                     ind_desc = tag_def.indicators["2"].get(ind_value, "Unknown value")
                     info = f"**Indicator 2:** `{ind_value}`\n\n{ind_desc}"
 
-                    loc_url = get_tag_url(field.tag)
-                    if loc_url:
-                        info += f"\n\n[View full documentation on Library of Congress]({loc_url})"
-
                     return info
                 else:
                     return f"**Indicator 2:** `{field.indicator2 or ' '}`"
@@ -438,14 +484,15 @@ def get_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk') -> Optiona
     return None
 
 
-def get_fixed_field_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fmt: str = 'mrk') -> Optional[tuple]:
+def get_fixed_field_hover_info_with_range(line: str, field, char_idx: int, line_idx: int, fmt: str = 'mrk', record_type: Optional[RecordType] = None) -> Optional[tuple]:
     """Get hover information and range for fixed fields like 008, 001, etc."""
 
     tag_end = _tag_end_char(fmt)
 
-    # Skip if hovering over the tag itself
-    if char_idx <= tag_end:
-        return None
+    # Skip if hovering over the tag itself (but not for line format leader which has no tag)
+    if not (field.tag == "LDR" and fmt == 'line'):
+        if char_idx <= tag_end:
+            return None
 
     content_start = _find_content_start(line, field, fmt)
     if content_start == -1:
@@ -457,8 +504,14 @@ def get_fixed_field_hover_info_with_range(line: str, field, char_idx: int, line_
 
     field_char_pos = char_idx - content_start
 
-    # Get position information
-    pos_info = static_data.get_position_info(field.tag, field_char_pos)
+    # Get position information with record type
+    if record_type:
+        pos_info = static_data.get_position_info(field.tag, field_char_pos, record_type)
+    else:
+        # No record type detected, can't provide position info for 008
+        if field.tag == "008":
+            return None
+        pos_info = static_data.get_position_info(field.tag, field_char_pos, RecordType.BIBLIOGRAPHIC)
     if not pos_info:
         # Default single character range
         hover_range = lsp.Range(
@@ -519,10 +572,6 @@ def get_fixed_field_hover_info_with_range(line: str, field, char_idx: int, line_
             if value != char_value:
                 info += f"`{value}`: {desc}\n"
 
-    loc_url = get_tag_url(field.tag)
-    if loc_url:
-        info += f"\n[View full documentation on Library of Congress]({loc_url})"
-
     return info, hover_range
 
 
@@ -571,10 +620,6 @@ def get_fixed_field_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk'
         for value, desc in pos_info.values.items():
             if value != char_value:
                 info += f"`{value}`: {desc}\n"
-
-    loc_url = get_tag_url(field.tag)
-    if loc_url:
-        info += f"\n[View full documentation on Library of Congress]({loc_url})"
 
     return info
 

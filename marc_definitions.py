@@ -9,8 +9,19 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Literal
 from dataclasses import dataclass
+from enum import Enum
+
+
+class RecordType(Enum):
+    """MARC record types based on Leader byte 6."""
+    BIBLIOGRAPHIC = "bib"
+    HOLDINGS = "hold"
+    CLASSIFICATION = "class"
+    AUTHORITY = "auth"
+    COMMUNITY = "comm"
+    UNKNOWN = "unknown"
 
 
 @dataclass
@@ -28,7 +39,6 @@ class TagDefinition:
     tag: str
     name: str
     description: str
-    repeatable: bool = False
     indicators: Dict[str, Dict[str, str]] = None  # indicator_num -> value -> description
     subfields: Dict[str, SubfieldDefinition] = None
     
@@ -68,7 +78,8 @@ class MarcStaticData:
         # In-memory caches
         self._bibliographic_tags = {}
         self._holdings_tags = {}
-        self._fixed_fields = {}
+        self._fixed_fields = {}  # Default fixed fields
+        self._fixed_fields_by_type = {}  # Record-type specific fixed fields
         self._loaded = False
         
         # Lazy load data when first accessed
@@ -101,8 +112,12 @@ class MarcStaticData:
             if fixed_file.exists():
                 with open(fixed_file, 'r', encoding='utf-8') as f:
                     fixed_data = json.load(f)
-                    self._fixed_fields = self._parse_fixed_field_data(fixed_data.get("fields", {}))
-                    logging.info(f"Loaded {len(self._fixed_fields)} fixed field definitions")
+                    fields_data = fixed_data.get("fields", {})
+                    
+                    # Fields are organized by record type (BIB, HOLD, etc.)
+                    for record_type, type_fields in fields_data.items():
+                        self._fixed_fields_by_type[record_type] = self._parse_fixed_field_data(type_fields)
+                    logging.info(f"Loaded record-type-specific fixed field definitions for: {', '.join(self._fixed_fields_by_type.keys())}")
             
             # Use test data if main files don't exist
             test_file = self.data_dir / "test_extraction.json"
@@ -118,6 +133,43 @@ class MarcStaticData:
         except Exception as e:
             logging.error(f"Failed to load static MARC data: {e}")
             # Continue with empty data rather than crashing
+    
+    def detect_record_type(self, leader: str) -> RecordType:
+        """Detect MARC record type from the leader (byte 6)."""
+        if not leader or len(leader) < 7:
+            return RecordType.UNKNOWN
+        
+        type_code = leader[6]
+        
+        # Map leader byte 6 to record type
+        type_map = {
+            'a': RecordType.BIBLIOGRAPHIC,  # Language material
+            'c': RecordType.BIBLIOGRAPHIC,  # Notated music
+            'd': RecordType.BIBLIOGRAPHIC,  # Manuscript notated music
+            'e': RecordType.BIBLIOGRAPHIC,  # Cartographic material
+            'f': RecordType.BIBLIOGRAPHIC,  # Manuscript cartographic
+            'g': RecordType.BIBLIOGRAPHIC,  # Projected medium
+            'i': RecordType.BIBLIOGRAPHIC,  # Nonmusical sound recording
+            'j': RecordType.BIBLIOGRAPHIC,  # Musical sound recording
+            'k': RecordType.BIBLIOGRAPHIC,  # Two-dimensional nonprojectable graphic
+            'm': RecordType.BIBLIOGRAPHIC,  # Computer file
+            'o': RecordType.BIBLIOGRAPHIC,  # Kit
+            'p': RecordType.BIBLIOGRAPHIC,  # Mixed materials
+            'r': RecordType.BIBLIOGRAPHIC,  # Three-dimensional artifact or naturally occurring object
+            't': RecordType.BIBLIOGRAPHIC,  # Manuscript language material
+            'u': RecordType.UNKNOWN,        # Unknown
+            'v': RecordType.BIBLIOGRAPHIC,  # Single unit within an integrating resource
+            'w': RecordType.BIBLIOGRAPHIC,  # Integrating resource
+            'x': RecordType.BIBLIOGRAPHIC,  # Serial integrating resource
+            'y': RecordType.BIBLIOGRAPHIC,  # Serial monograph
+            'z': RecordType.BIBLIOGRAPHIC,  # Serial item
+            'v': RecordType.HOLDINGS,       # Holdings (Leader position 6)
+            'c': RecordType.CLASSIFICATION,
+            'n': RecordType.AUTHORITY,
+            'z': RecordType.AUTHORITY,
+        }
+        
+        return type_map.get(type_code, RecordType.UNKNOWN)
     
     def _parse_tag_data(self, tag_data: Dict) -> Dict[str, TagDefinition]:
         """Parse tag data from JSON into TagDefinition objects."""
@@ -139,7 +191,6 @@ class MarcStaticData:
                 tag=data["tag"],
                 name=data["name"],
                 description=data["description"],
-                repeatable=data.get("repeatable", False),
                 indicators=data.get("indicators", {}),
                 subfields=subfields
             )
@@ -199,18 +250,37 @@ class MarcStaticData:
         
         return list(tag_def.subfields.keys())
     
-    def is_fixed_field(self, field_tag: str) -> bool:
-        """Check if a field tag is a fixed field."""
-        return field_tag in self._fixed_fields
+    def is_fixed_field(self, field_tag: str, record_type: Optional[RecordType] = None) -> bool:
+        """Check if a field tag is a fixed field in the given record type."""
+        if not record_type:
+            return False
+        
+        record_type_key = record_type.value.upper()
+        if record_type_key in self._fixed_fields_by_type:
+            return field_tag in self._fixed_fields_by_type[record_type_key]
+        
+        return False
     
-    def get_position_info(self, field_tag: str, char_position: int) -> Optional[FixedFieldPosition]:
-        """Get information for a specific character position in a fixed field."""
-        if field_tag not in self._fixed_fields:
+    def get_position_info(self, field_tag: str, char_position: int, record_type: RecordType) -> Optional[FixedFieldPosition]:
+        """Get information for a specific character position in a fixed field.
+        
+        Args:
+            field_tag: The MARC field tag
+            char_position: The character position to look up
+            record_type: Record type for type-specific lookups
+        """
+        record_type_key = record_type.value.upper()
+        if record_type_key not in self._fixed_fields_by_type:
             return None
         
-        field_def = self._fixed_fields[field_tag]
+        if field_tag not in self._fixed_fields_by_type[record_type_key]:
+            return None
         
-        # Find which position definition contains this character
+        field_def = self._fixed_fields_by_type[record_type_key][field_tag]
+        return self._find_position_in_def(field_def, char_position)
+    
+    def _find_position_in_def(self, field_def: Dict[str, FixedFieldPosition], char_position: int) -> Optional[FixedFieldPosition]:
+        """Helper to find position definition within a field."""
         for pos_name, pos_def in field_def.items():
             if pos_def.end == -1:  # Variable length field
                 if char_position >= pos_def.start:
