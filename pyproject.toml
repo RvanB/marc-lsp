@@ -14,10 +14,11 @@ dependencies = [
 ]
 
 [project.scripts]
-marc-lsp-server = "marc_lsp_server:main"
+marc-lsp-server = "server:main"
 
 [tool.setuptools]
-py-modules = ["marc_lsp_server", "marc_static_data", "mrk_parser", "line_parser"]
+packages = ["parsers"]
+py-modules = ["server", "marc_definitions"]
 data-files = {"data" = [
     "data/marc_bibliographic.json",
     "data/marc_holdings.json",

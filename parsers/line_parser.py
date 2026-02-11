@@ -20,7 +20,7 @@ Format:
 import re
 from typing import List, Optional
 
-from mrk_parser import MarcField, MarcSubfield, MarcRecord, FieldType
+from .mrk_parser import MarcField, MarcSubfield, MarcRecord, FieldType
 
 
 class LineParser:

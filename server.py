@@ -14,9 +14,8 @@ from typing import List, Optional, Union
 from lsprotocol import types as lsp
 from pygls.server import LanguageServer
 
-from mrk_parser import MrkParser, FieldType
-from line_parser import LineParser
-from marc_static_data import MarcStaticData
+from parsers import MrkParser, LineParser, FieldType
+from marc_definitions import MarcStaticData
 
 
 def get_tag_url(tag: str) -> Optional[str]:
