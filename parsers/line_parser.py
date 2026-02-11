@@ -151,6 +151,10 @@ class LineParser:
             if field.indicator2 and len(field.indicator2) != 1:
                 errors.append(f"Second indicator must be single character for field {field.tag}")
 
+            # Data fields must have subfields
+            if not field.subfields or len(field.subfields) == 0:
+                errors.append(f"Data field {field.tag} must contain subfields")
+
             if field.subfields:
                 for subfield in field.subfields:
                     if not re.match(r'^[a-z0-9]$', subfield.code):

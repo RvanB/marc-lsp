@@ -4,7 +4,7 @@ MARC LSP Server
 
 Language Server Protocol implementation for MARC files.
 Supports both MRK format (=245  10$aTitle) and line mode (245 10 $a Title).
-Provides hover documentation, completion, and validation.
+Provides hover documentation and validation.
 """
 
 import logging
@@ -628,6 +628,11 @@ def get_fixed_field_hover_info(line: str, field, char_idx: int, fmt: str = 'mrk'
 async def did_open_text_document(params: lsp.DidOpenTextDocumentParams):
     """Handle document open events."""
     logging.info(f"Document opened: {params.text_document.uri}")
+    
+    # Validate document on open
+    document = server.workspace.get_text_document(params.text_document.uri)
+    diagnostics = validate_document(document)
+    server.publish_diagnostics(document.uri, diagnostics)
 
 
 @server.feature(lsp.TEXT_DOCUMENT_DID_CHANGE)
@@ -651,7 +656,24 @@ def validate_document(document) -> List[lsp.Diagnostic]:
     parser = server.get_parser(fmt)
 
     for line_idx, line in enumerate(lines):
+        stripped = line.strip()
+        
+        # Skip empty lines
+        if not stripped:
+            continue
+        
+        # Check if this is a valid MARC line
         if not _is_marc_line(line, fmt):
+            # Non-empty line that doesn't match MARC format
+            diagnostics.append(lsp.Diagnostic(
+                range=lsp.Range(
+                    start=lsp.Position(line=line_idx, character=0),
+                    end=lsp.Position(line=line_idx, character=len(line))
+                ),
+                severity=lsp.DiagnosticSeverity.Error,
+                source="marc-lsp",
+                message="Invalid MARC line format"
+            ))
             continue
 
         field = parser.parse_line(line, line_idx + 1)
